@@ -1,0 +1,9 @@
+{
+  "code": "pm_kisan",
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "occupation", "op": "eq", "value": "farmer"},
+    {"field": "land_owned", "op": "eq", "value": true},
+    {"field": "income", "op": "lte", "value": 200000}
+  ]
+}
