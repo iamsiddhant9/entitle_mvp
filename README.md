@@ -77,16 +77,3 @@ entitle/
 
 ---
 
-## Development Roadmap (24h Plan)
-
-1. **Hour 0-1**: Finalize schemes & freeze `docs/api-contract.md` v1, scaffold repo.
-2. **Hour 1-4**: Implement pure Python rule engine, Django models/migrations, static Landing page.
-3. **Hour 4-7**: `/evaluate` and `/schemes` endpoints live; wire Assistant UI to backend.
-4. **Hour 7-10**: Gemini integration for explainability, Dashboard UI, rules JSON definition.
-5. **Hour 10-13**: OCR blur-checking and Gemini Vision extraction, Document upload UI.
-6. **Hour 13-15**: End-to-end integration checkpoint.
-7. **Hour 15-17**: Smart contract deployment, certificate generation, hash/tx flow, Certificate UI.
-8. **Hour 17-19**: Missing-document check and knowledge assistant.
-9. **Hour 19-21**: UI polish, mobile responsiveness, error handling.
-10. **Hour 21-22**: Deployment (Vercel + Railway/Render), seed data, pre-generate backup certificate.
-11. **Hour 22-24**: Rehearsals, dry runs, buffer.
