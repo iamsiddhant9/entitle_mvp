@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-open-sans), sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
+
+  /* ENTITLE Core Palette */
+  --color-brand: #0B5CFF;
+  --color-brand-dark: #0747CC;
+  --color-brand-light: #EEF3FF;
+  --color-brand-mid: #DBEAFE;
+
+  --color-ink: #0F172A;
+  --color-ink-mid: #334155;
+  --color-ink-muted: #64748B;
+  --color-ink-faint: #94A3B8;
+
+  --color-surface: #F8FAFC;
+  --color-surface-mid: #F1F5F9;
+  --color-border: #E2E8F0;
+  --color-border-strong: #CBD5E1;
+
+  /* Tricolor */
+  --color-tricolor-saffron: #FF9933;
+  --color-tricolor-white: #FFFFFF;
+  --color-tricolor-green: #138808;
+
+  /* Status */
+  --color-ok: #16A34A;
+  --color-ok-bg: #F0FDF4;
+  --color-ok-border: #BBF7D0;
+  --color-warn: #D97706;
+  --color-warn-bg: #FFFBEB;
+  --color-warn-border: #FDE68A;
+  --color-bad: #DC2626;
+  --color-bad-bg: #FEF2F2;
+  --color-bad-border: #FECACA;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 22px;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0F172A;
+  --primary: #0B5CFF;
+  --primary-foreground: #ffffff;
+  --border: #E2E8F0;
+  --radius: 0.625rem;
+}
+
+@layer base {
+  * {
+    border-color: #E2E8F0;
+    outline-color: transparent;
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #0F172A;
+    font-family: var(--font-open-sans), sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.011em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Shadow utilities */
+@layer utilities {
+  .shadow-card {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.05);
+  }
+  .shadow-card-hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.07);
+  }
+  .shadow-brand {
+    box-shadow: 0 4px 16px rgba(11,92,255,0.28);
+  }
+  .shadow-brand-hover {
+    box-shadow: 0 8px 24px rgba(11,92,255,0.35);
+  }
+}
+
+/* Tricolor bar */
+.tricolor-bar {
+  display: flex;
+  height: 4px;
+  width: 100%;
+}
+.tricolor-bar span:nth-child(1) { flex: 1; background: #FF9933; }
+.tricolor-bar span:nth-child(2) { flex: 1; background: #FFFFFF; border-top: 1px solid #E2E8F0; border-bottom: 1px solid #E2E8F0; }
+.tricolor-bar span:nth-child(3) { flex: 1; background: #138808; }
+
+/* Subtle animated pulse for live indicator */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.9); }
+}
+.live-dot {
+  animation: live-pulse 1.8s ease-in-out infinite;
+}
