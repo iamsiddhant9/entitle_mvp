@@ -146,3 +146,20 @@ GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 POLYGON_AMOY_RPC_URL = os.environ.get('POLYGON_AMOY_RPC_URL', 'https://rpc-amoy.polygon.technology')
 WALLET_PRIVATE_KEY = os.environ.get('WALLET_PRIVATE_KEY', '')
 ELIGIBILITY_REGISTRY_ADDRESS = os.environ.get('ELIGIBILITY_REGISTRY_ADDRESS', '')
+
+# Gemini model configuration (shared by document extraction).
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.5-flash')
+GEMINI_TIMEOUT_MS = int(os.environ.get('GEMINI_TIMEOUT_MS', '30000'))
+
+# Document upload / OCR pipeline limits.
+#   MAX_UPLOAD_BYTES  - 10 MiB: fits a high-resolution phone photo of a certificate
+#                       while bounding per-request memory use.
+#   MAX_IMAGE_PIXELS  - 50 MP: decompression-bomb guard, checked from the image header
+#                       before any pixel data is decoded.
+#   BLUR_THRESHOLD    - variance of the Laplacian below which a document is treated as
+#                       unreadable. Calibrated in apps/documents/services/quality.py;
+#                       sharp documents measure 50,000+, heavy blur under 600.
+DOCUMENT_MAX_UPLOAD_BYTES = int(os.environ.get('DOCUMENT_MAX_UPLOAD_BYTES', 10 * 1024 * 1024))
+DOCUMENT_MAX_IMAGE_PIXELS = int(os.environ.get('DOCUMENT_MAX_IMAGE_PIXELS', 50_000_000))
+DOCUMENT_BLUR_THRESHOLD = float(os.environ.get('DOCUMENT_BLUR_THRESHOLD', '300'))
+DOCUMENT_ALLOWED_IMAGE_FORMATS = ('JPEG', 'PNG', 'WEBP')

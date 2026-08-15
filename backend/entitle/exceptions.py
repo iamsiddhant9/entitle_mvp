@@ -66,13 +66,16 @@ def custom_exception_handler(exc, context):
         }
         return response
 
-    # If unhandled server exception (500)
-    logger.exception(f"Unhandled Server Error: {str(exc)}")
+    # If unhandled server exception (500).
+    # The full exception (with traceback) goes to the server log; the client gets a
+    # generic message. Raw exception text can carry filesystem paths, SQL, or fragments
+    # of third-party API errors, and DEBUG defaults to True in this project.
+    logger.exception("Unhandled Server Error")
     return Response(
         {
             "error": {
                 "code": "INTERNAL_SERVER_ERROR",
-                "message": str(exc) or "An unexpected server error occurred."
+                "message": "An unexpected server error occurred."
             }
         },
         status=status.HTTP_500_INTERNAL_SERVER_ERROR
