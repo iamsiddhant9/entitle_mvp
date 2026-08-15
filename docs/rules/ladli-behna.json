@@ -1,0 +1,12 @@
+{
+  "code": "ladli_behna",
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "gender", "op": "eq", "value": "female"},
+    {"field": "state", "op": "eq", "value": "Madhya Pradesh"},
+    {"field": "age", "op": "gte", "value": 21},
+    {"field": "age", "op": "lte", "value": 60},
+    {"field": "income", "op": "lte", "value": 250000},
+    {"field": "has_bank_account", "op": "eq", "value": true}
+  ]
+}

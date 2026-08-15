@@ -177,38 +177,69 @@ All endpoints must return error responses in the following format when a failure
 
 ## 4. AI Explanation & Assistance
 
+**Trust model.** The deterministic rule engine decides eligibility. These endpoints only put an
+existing result into human language — Gemini never decides, and is instructed not to contradict the
+verdict it is given. When Gemini is unavailable or unconfigured, a deterministic fallback renders
+the same result; responses are always well-formed either way.
+
+**Grounding.** Prompts carry only the scheme name, its stored description, the verdict, and the
+scheme's conditions rendered into plain language. The model is instructed to invent nothing and
+never to name another scheme (ENTITLE evaluates twelve, but only one is ever in context).
+
+**Privacy.** The citizen's profile is **not** sent to the model. Rule conditions are verbalised
+before they enter a prompt, so raw engine syntax (`lte`, `eq`, field identifiers) never reaches the
+model or the citizen.
+
 ### `POST /api/explain/`
-- **Description**: Generates a natural language explainability response from Gemini for a specific eligibility result.
+- **Description**: Explains an eligibility result in plain language.
+- **Ownership**: the caller must prove they own the result by supplying the owning citizen's UUID —
+  in `citizen_id`, the `X-Citizen-Id` header, or the citizen session. The enumerable integer primary
+  key is **not** accepted as proof.
 - **Request Body**:
   ```json
   {
-    "eligibility_result_id": 42
+    "eligibility_result_id": 42,
+    "citizen_id": "d3b07384-d113-4956-b51b-415c3298642a",
+    "language": "en"
   }
   ```
+  `language` accepts `"en"` (default) or `"hi"`.
 - **Response** (Status `200 OK`):
   ```json
   {
     "eligibility_result_id": 42,
-    "explanation": "You are eligible for PM Kisan because your occupation is farmer, you own land, and your annual income is below Rs. 2,00,000."
+    "explanation": "Good news — you are eligible for PM Kisan Samman Nidhi. You already meet these conditions: your occupation is farmer, you own land and your annual family income is less than or equal to ₹2,00,000. You can go ahead and apply for this scheme."
   }
   ```
+- **Errors**: `VALIDATION_ERROR` (`400`) when `eligibility_result_id` is missing;
+  `PERMISSION_DENIED` (`403`) when ownership is not proven; `NOT_FOUND` (`404`) for an unknown id.
 
 ### `POST /api/knowledge/ask/`
-- **Description**: Grounded query-answering chat assistant.
+- **Description**: Answers a question about a scheme, grounded strictly in the scheme record ENTITLE
+  holds. Also reachable at `/api/explain/ask/` (undocumented alias, retained for compatibility).
+- **Unknown or absent `scheme_code`**: returns `200` with an answer stating that ENTITLE has no
+  information about that scheme, and a link to the official portal. It does **not** answer from the
+  model's own knowledge.
 - **Request Body**:
   ```json
   {
-    "question": "What is the benefit under PM Kisan?",
-    "scheme_code": "pm_kisan"
+    "question": "Who can apply for PM Kisan?",
+    "scheme_code": "pm_kisan",
+    "language": "en"
   }
   ```
 - **Response** (Status `200 OK`):
   ```json
   {
-    "answer": "Under PM Kisan, eligible farmer families receive a financial benefit of Rs. 6000/- per year in three equal installments of Rs. 2000/- each, distributed every four months.",
+    "answer": "PM Kisan Samman Nidhi: Financial benefit of Rs. 6000/- per year in three equal installments to all landholding farmer families. For full official details, see https://pmkisan.gov.in/",
     "source_url": "https://pmkisan.gov.in/"
   }
   ```
+  > The example answer is drawn entirely from the seeded scheme description. Earlier versions of this
+  > contract showed an answer containing an instalment schedule ("Rs. 2000 each, every four months")
+  > that appears in no data supplied to the model — exactly the kind of invention these endpoints must
+  > not produce.
+- **Errors**: `VALIDATION_ERROR` (`400`) when `question` is missing.
 
 ---
 

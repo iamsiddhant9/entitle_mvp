@@ -51,6 +51,14 @@ SCHEMES_DATA = [
         "name": "Ayushman Bharat (PMJAY)",
         "description": "Health cover of Rs. 5 lakhs per family per year for secondary and tertiary care hospitalization to poor and vulnerable families.",
         "ministry": "Health and Family Welfare",
+        # FLAGGED — MISMODELLED, awaiting a team decision. See docs/scheme-rule-audit.md.
+        # PM-JAY has no income test. Official eligibility comes from SECC-2011 deprivation
+        # categories (rural) and 11 occupational categories (urban), plus universal cover
+        # for everyone aged 70+ since September 2024. The 500000 below appears to be the
+        # Rs 5 lakh *benefit cover* from the description above, repurposed as an income
+        # ceiling. It is left unchanged rather than replaced with an invented
+        # approximation: the real criteria are a set of OR-ed categories, which the
+        # current AND-only rule engine cannot express.
         "rules_json": {
             "code": "pmjay",
             "near_miss_threshold": 1,
@@ -69,6 +77,14 @@ SCHEMES_DATA = [
         "name": "PM National Scholarship",
         "description": "Financial support for post-matric higher education for eligible students belonging to lower income backgrounds.",
         "ministry": "Education",
+        # FLAGGED — scheme identity is ambiguous, awaiting a team decision.
+        # See docs/scheme-rule-audit.md. "PM National Scholarship" does not name a single
+        # real scheme. The Rs 3.5 lakh vs Rs 4.5 lakh question is not a dispute over one
+        # ceiling: Rs 4.5 lakh belongs to PM-USP CSSS (college, via NSP) and Rs 3.5 lakh to
+        # NMMSS (Class 9-12). The 450000 below is therefore defensible IF this entry means
+        # CSSS — but the rule then omits CSSS's binding criteria (above 80th percentile in
+        # Class XII, regular degree course, no other scholarship). Left unchanged pending
+        # a decision on which scheme this represents.
         "rules_json": {
             "code": "pm_scholarship",
             "near_miss_threshold": 1,
@@ -231,6 +247,13 @@ SCHEMES_DATA = [
         "name": "Ladli Behna Yojana (MP)",
         "description": "Direct monthly financial assistance of Rs. 1250/- to eligible women in Madhya Pradesh to foster financial independence.",
         "ministry": "Women & Child Development (MP State)",
+        # Age band verified against https://cmladlibahna.mp.gov.in/ (official MP portal):
+        # minimum "21 वर्ष पूर्ण कर चुकी हों" and maximum "60 वर्ष की आयु से कम हो" (under 60),
+        # hence `lt 60` rather than `lte 60`. The 23-year minimum sometimes quoted is
+        # historical — it applied to the first registration round only, until July 2023.
+        # Unmodelled official criteria (marital status, age assessed as on 1 January,
+        # income-tax-payer / >5 acre / four-wheeler exclusions) are recorded in
+        # docs/scheme-rule-audit.md.
         "rules_json": {
             "code": "ladli_behna_mp",
             "near_miss_threshold": 1,
@@ -238,7 +261,7 @@ SCHEMES_DATA = [
                 {"field": "gender", "op": "eq", "value": "female"},
                 {"field": "state", "op": "eq", "value": "Madhya Pradesh"},
                 {"field": "age", "op": "gte", "value": 21},
-                {"field": "age", "op": "lte", "value": 60},
+                {"field": "age", "op": "lt", "value": 60},
                 {"field": "income", "op": "lte", "value": 250000}
             ]
         },

@@ -19,7 +19,7 @@
     },
     {
       "field": "age",
-      "op": "lte",
+      "op": "lt",
       "value": 60
     },
     {

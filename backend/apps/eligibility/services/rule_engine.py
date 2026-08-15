@@ -76,3 +76,29 @@ def evaluate(scheme_rules: Dict[str, Any], profile: Dict[str, Any]) -> RuleResul
     threshold = scheme_rules.get("near_miss_threshold", 1)
     status = "near_miss" if len(missing) <= threshold else "not_eligible"
     return RuleResult(status, matched, missing)
+
+def check_documents(required_docs: List[str], citizen_credentials: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Checks which required documents the citizen already has verified credentials for.
+    citizen_credentials should be a list of credential dicts retrieved from the DocumentCredentialRegistry.
+    """
+    verified = []
+    missing = []
+    
+    # Extract valid document types the citizen has
+    valid_doc_types = set()
+    for cred in citizen_credentials:
+        if not cred.get("revoked", False):
+            valid_doc_types.add(cred.get("documentType"))
+            
+    for doc in required_docs:
+        if doc in valid_doc_types:
+            verified.append(doc)
+        else:
+            missing.append(doc)
+            
+    return {
+        "verified": verified,
+        "missing": missing,
+        "all_verified": len(missing) == 0
+    }
