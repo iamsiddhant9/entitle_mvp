@@ -143,6 +143,7 @@ yarn-error.log*
 # Next.js
 .next/
 out/
+*.zip
 
 # IDEs and editors
 .vscode/

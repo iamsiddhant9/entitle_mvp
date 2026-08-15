@@ -1,0 +1,9 @@
+{
+  "code": "ayushman_bharat",
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "income", "op": "lte", "value": 500000},
+    {"field": "occupation", "op": "in", "value": ["farmer", "worker", "artisan", "unemployed", "self_employed", "student"]},
+    {"field": "has_bank_account", "op": "eq", "value": true}
+  ]
+}
