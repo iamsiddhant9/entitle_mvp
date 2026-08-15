@@ -1,0 +1,20 @@
+{
+  "code": "pm_mudra",
+  "near_miss_threshold": 1,
+  "conditions": [
+    {
+      "field": "occupation",
+      "op": "in",
+      "value": [
+        "self_employed",
+        "worker",
+        "artisan"
+      ]
+    },
+    {
+      "field": "income",
+      "op": "lte",
+      "value": 1000000
+    }
+  ]
+}

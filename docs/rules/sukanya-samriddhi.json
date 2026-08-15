@@ -1,0 +1,21 @@
+{
+  "code": "sukanya_samriddhi",
+  "near_miss_threshold": 1,
+  "conditions": [
+    {
+      "field": "girl_child_age",
+      "op": "lte",
+      "value": 10
+    },
+    {
+      "field": "girl_child_age",
+      "op": "gte",
+      "value": 0
+    },
+    {
+      "field": "has_bank_account",
+      "op": "eq",
+      "value": true
+    }
+  ]
+}

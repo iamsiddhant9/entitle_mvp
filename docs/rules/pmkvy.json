@@ -1,0 +1,25 @@
+{
+  "code": "pmkvy",
+  "near_miss_threshold": 1,
+  "conditions": [
+    {
+      "field": "age",
+      "op": "gte",
+      "value": 15
+    },
+    {
+      "field": "age",
+      "op": "lte",
+      "value": 45
+    },
+    {
+      "field": "occupation",
+      "op": "in",
+      "value": [
+        "unemployed",
+        "worker",
+        "student"
+      ]
+    }
+  ]
+}

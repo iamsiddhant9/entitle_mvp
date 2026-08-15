@@ -1,21 +1,16 @@
 {
-  "code": "pm_kisan",
+  "code": "pm_scholarship",
   "near_miss_threshold": 1,
   "conditions": [
     {
       "field": "occupation",
       "op": "eq",
-      "value": "farmer"
-    },
-    {
-      "field": "land_owned",
-      "op": "eq",
-      "value": true
+      "value": "student"
     },
     {
       "field": "income",
       "op": "lte",
-      "value": 200000
+      "value": 450000
     }
   ]
 }

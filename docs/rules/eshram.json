@@ -1,0 +1,27 @@
+{
+  "code": "eshram",
+  "near_miss_threshold": 1,
+  "conditions": [
+    {
+      "field": "age",
+      "op": "gte",
+      "value": 16
+    },
+    {
+      "field": "age",
+      "op": "lte",
+      "value": 59
+    },
+    {
+      "field": "occupation",
+      "op": "in",
+      "value": [
+        "worker",
+        "artisan",
+        "farmer",
+        "self_employed",
+        "unemployed"
+      ]
+    }
+  ]
+}

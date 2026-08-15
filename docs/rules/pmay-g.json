@@ -1,0 +1,16 @@
+{
+  "code": "pmay_g",
+  "near_miss_threshold": 1,
+  "conditions": [
+    {
+      "field": "income",
+      "op": "lte",
+      "value": 300000
+    },
+    {
+      "field": "land_owned",
+      "op": "eq",
+      "value": false
+    }
+  ]
+}

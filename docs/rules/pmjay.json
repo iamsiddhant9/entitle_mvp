@@ -1,0 +1,11 @@
+{
+  "code": "pmjay",
+  "near_miss_threshold": 1,
+  "conditions": [
+    {
+      "field": "income",
+      "op": "lte",
+      "value": 500000
+    }
+  ]
+}

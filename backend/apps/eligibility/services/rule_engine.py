@@ -24,21 +24,35 @@ def check(rule: Dict[str, Any], profile: Dict[str, Any]) -> bool:
     if actual is None:
         return False
         
-    if op == "eq":
-        return actual == expected
-    elif op == "neq":
-        return actual != expected
-    elif op == "lte":
-        return actual <= expected
-    elif op == "gte":
-        return actual >= expected
-    elif op == "lt":
-        return actual < expected
-    elif op == "gt":
-        return actual > expected
-    elif op == "in":
-        if isinstance(expected, list):
-            return actual in expected
+    try:
+        # String case-insensitive normalization if both are strings
+        if isinstance(actual, str) and isinstance(expected, str):
+            actual_norm = actual.strip().lower()
+            expected_norm = expected.strip().lower()
+        else:
+            actual_norm = actual
+            expected_norm = expected
+
+        if op == "eq":
+            return actual_norm == expected_norm
+        elif op == "neq":
+            return actual_norm != expected_norm
+        elif op == "lte":
+            return float(actual) <= float(expected)
+        elif op == "gte":
+            return float(actual) >= float(expected)
+        elif op == "lt":
+            return float(actual) < float(expected)
+        elif op == "gt":
+            return float(actual) > float(expected)
+        elif op == "in":
+            if isinstance(expected, list):
+                if isinstance(actual, str):
+                    exp_strings = [str(x).strip().lower() for x in expected]
+                    return str(actual).strip().lower() in exp_strings
+                return actual in expected
+            return False
+    except (ValueError, TypeError):
         return False
         
     return False

@@ -1,0 +1,21 @@
+{
+  "code": "pm_jeevan_jyoti",
+  "near_miss_threshold": 1,
+  "conditions": [
+    {
+      "field": "age",
+      "op": "gte",
+      "value": 18
+    },
+    {
+      "field": "age",
+      "op": "lte",
+      "value": 50
+    },
+    {
+      "field": "has_bank_account",
+      "op": "eq",
+      "value": true
+    }
+  ]
+}
