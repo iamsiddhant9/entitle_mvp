@@ -233,8 +233,8 @@ export default function IndiaImpactMap() {
                 viewBox="100 0 700 680"
               >
                 <Geographies geography={GEO_URL}>
-                  {({ geographies }) =>
-                    geographies.map((geo) => {
+                  {({ geographies }: { geographies: any[] }) =>
+                    geographies.map((geo: any) => {
                       const name  = geo.properties.ST_NM as string;
                       const data  = stateData[name];
                       const isHov = hoveredState === name;
