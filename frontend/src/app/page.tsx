@@ -140,6 +140,32 @@ function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) 
     ["Help", "#faq", false],
   ];
 
+  const indianLanguages = [
+    { code: "en", name: "English" },
+    { code: "hi", name: "हिंदी (Hindi)" },
+    { code: "as", name: "অসমীয়া (Assamese)" },
+    { code: "bn", name: "বাংলা (Bengali)" },
+    { code: "brx", name: "बड़ो (Bodo)" },
+    { code: "doi", name: "डोगरी (Dogri)" },
+    { code: "gu", name: "ગુજરાતી (Gujarati)" },
+    { code: "kn", name: "ಕನ್ನಡ (Kannada)" },
+    { code: "ks", name: "کأشُر (Kashmiri)" },
+    { code: "gom", name: "कोंकणी (Konkani)" },
+    { code: "mai", name: "मैथिली (Maithili)" },
+    { code: "ml", name: "മലയാളം (Malayalam)" },
+    { code: "mni", name: "ꯃꯤꯇꯩꯂꯣꯟ (Manipuri)" },
+    { code: "mr", name: "मराठी (Marathi)" },
+    { code: "ne", name: "नेपाली (Nepali)" },
+    { code: "or", name: "ଓଡ଼ିଆ (Odia)" },
+    { code: "pa", name: "ਪੰਜਾਬੀ (Punjabi)" },
+    { code: "sa", name: "संस्कृतम् (Sanskrit)" },
+    { code: "sat", name: "ᱥᱟᱱᱛᱟᱲᱤ (Santali)" },
+    { code: "sd", name: "سنڌي (Sindhi)" },
+    { code: "ta", name: "தமிழ் (Tamil)" },
+    { code: "te", name: "తెలుగు (Telugu)" },
+    { code: "ur", name: "اردو (Urdu)" },
+  ];
+
   return (
     <>
       <div id="google_translate_element" style={{ position: 'absolute', left: '-9999px', top: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}></div>
@@ -170,10 +196,11 @@ function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) 
             <select
               value={lang}
               onChange={handleLanguageChange}
-              className="bg-[#0B3CC8] text-white font-bold px-2 py-1 rounded outline-none cursor-pointer"
+              className="bg-[#0B3CC8] text-white font-bold px-2 py-1 rounded outline-none cursor-pointer max-w-[120px] sm:max-w-[150px] truncate"
             >
-              <option value="en">English</option>
-              <option value="hi">हिंदी (Hindi)</option>
+              {indianLanguages.map((l) => (
+                <option key={l.code} value={l.code}>{l.name}</option>
+              ))}
             </select>
           </div>
         </div>
