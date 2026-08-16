@@ -1,0 +1,14 @@
+{
+  "code": "sukanya_samriddhi",
+  "name": "Sukanya Samriddhi Yojana",
+  "domain": "Finance",
+  "description": "Small savings scheme for the girl child offering high tax-free interest, to build a corpus for her education and future.",
+  "benefit": "High-interest tax-free savings account for a girl child",
+  "source_url": "https://www.nsiindia.gov.in/",
+  "required_documents": ["aadhaar_card", "birth_certificate"],
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "has_daughter_under_10", "op": "eq", "value": true, "label": "Must have a daughter below 10 years of age"},
+    {"field": "bank_account", "op": "eq", "value": true, "label": "Must have access to a bank or post office account"}
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "code": "pmjjby",
+  "name": "PM Jeevan Jyoti Bima Yojana",
+  "domain": "Insurance",
+  "description": "Renewable one-year term life insurance cover of ₹2 lakh at an affordable annual premium for bank account holders.",
+  "benefit": "Life insurance cover of ₹2 lakh at ₹436/year premium",
+  "source_url": "https://www.jansuraksha.gov.in/",
+  "required_documents": ["aadhaar_card", "bank_passbook"],
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "age", "op": "gte", "value": 18, "label": "Must be at least 18 years old"},
+    {"field": "age", "op": "lte", "value": 50, "label": "Must be at most 50 years old"},
+    {"field": "bank_account", "op": "eq", "value": true, "label": "Must have a savings bank account"}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "code": "pm_scholarship",
+  "name": "PM National Scholarship",
+  "domain": "Education",
+  "description": "Central sector scholarship for meritorious students from lower income families pursuing higher education.",
+  "benefit": "₹12,000–₹20,000 scholarship per year for higher education",
+  "source_url": "https://scholarships.gov.in/",
+  "required_documents": ["aadhaar_card", "income_certificate"],
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "occupation", "op": "eq", "value": "student", "label": "Must be a student"},
+    {"field": "age", "op": "gte", "value": 17, "label": "Must be at least 17 years old"},
+    {"field": "age", "op": "lte", "value": 25, "label": "Must be at most 25 years old"},
+    {"field": "income", "op": "lte", "value": 450000, "label": "Annual family income must be at most ₹4,50,000"}
+  ]
+}

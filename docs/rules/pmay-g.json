@@ -1,0 +1,15 @@
+{
+  "code": "pmay_g",
+  "name": "Pradhan Mantri Awas Yojana – Gramin",
+  "domain": "Housing",
+  "description": "Financial assistance to rural households that are houseless or living in kutcha houses to construct a pucca house with basic amenities.",
+  "benefit": "Up to ₹1.30 lakh assistance to build a pucca house",
+  "source_url": "https://pmayg.nic.in/",
+  "required_documents": ["aadhaar_card", "income_certificate", "bank_passbook"],
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "residence_area", "op": "eq", "value": "rural", "label": "Must reside in a rural area"},
+    {"field": "house_owned", "op": "eq", "value": false, "label": "Must not already own a pucca house"},
+    {"field": "income", "op": "lte", "value": 120000, "label": "Annual family income must be at most ₹1,20,000"}
+  ]
+}

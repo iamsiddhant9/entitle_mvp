@@ -1,0 +1,6 @@
+# The root .gitignore ignores "lib/" globally (Python packaging artefacts).
+# Re-include the frontend's lib/ directory so api.ts, utils.ts and questions.ts are tracked.
+!lib/
+
+# Local env files
+.env*.local

@@ -1,0 +1,16 @@
+{
+  "code": "atal_pension",
+  "name": "Atal Pension Yojana",
+  "domain": "Pension",
+  "description": "Government-backed pension scheme for workers in the unorganised sector, providing a guaranteed monthly pension after the age of 60.",
+  "benefit": "Guaranteed monthly pension of ₹1,000–₹5,000 after age 60",
+  "source_url": "https://www.jansuraksha.gov.in/",
+  "required_documents": ["aadhaar_card", "bank_passbook"],
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "age", "op": "gte", "value": 18, "label": "Must be at least 18 years old"},
+    {"field": "age", "op": "lte", "value": 40, "label": "Must be at most 40 years old"},
+    {"field": "bank_account", "op": "eq", "value": true, "label": "Must have a savings bank account"},
+    {"field": "income_tax_payer", "op": "eq", "value": false, "label": "Must not be an income tax payer"}
+  ]
+}

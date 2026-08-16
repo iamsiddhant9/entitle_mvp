@@ -1,0 +1,14 @@
+{
+  "code": "ayushman_bharat",
+  "name": "Ayushman Bharat – PMJAY",
+  "domain": "Healthcare",
+  "description": "Health insurance cover of ₹5 lakh per family per year for secondary and tertiary care hospitalisation for economically vulnerable families.",
+  "benefit": "₹5 lakh health cover per family per year",
+  "source_url": "https://pmjay.gov.in/",
+  "required_documents": ["aadhaar_card", "ration_card"],
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "income", "op": "lte", "value": 250000, "label": "Annual family income must be at most ₹2,50,000"},
+    {"field": "income_tax_payer", "op": "eq", "value": false, "label": "Must not be an income tax payer"}
+  ]
+}

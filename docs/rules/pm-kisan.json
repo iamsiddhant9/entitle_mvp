@@ -1,9 +1,15 @@
 {
   "code": "pm_kisan",
+  "name": "PM Kisan Samman Nidhi",
+  "domain": "Agriculture",
+  "description": "Financial benefit of Rs. 6000/- per year in three equal installments to all landholding farmer families.",
+  "benefit": "₹6,000 per year in three equal installments of ₹2,000",
+  "source_url": "https://pmkisan.gov.in/",
+  "required_documents": ["aadhaar_card", "land_ownership_document", "bank_passbook"],
   "near_miss_threshold": 1,
   "conditions": [
-    {"field": "occupation", "op": "eq", "value": "farmer"},
-    {"field": "land_owned", "op": "eq", "value": true},
-    {"field": "income", "op": "lte", "value": 200000}
+    {"field": "occupation", "op": "eq", "value": "farmer", "label": "Must be a farmer"},
+    {"field": "land_owned", "op": "eq", "value": true, "label": "Must own cultivable land"},
+    {"field": "income", "op": "lte", "value": 200000, "label": "Annual family income must be at most ₹2,00,000"}
   ]
 }

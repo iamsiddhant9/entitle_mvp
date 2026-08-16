@@ -1,0 +1,15 @@
+{
+  "code": "pm_mudra",
+  "name": "Pradhan Mantri Mudra Yojana",
+  "domain": "Finance",
+  "description": "Collateral-free institutional credit up to ₹10 lakh for non-corporate, non-farm small and micro enterprises.",
+  "benefit": "Collateral-free business loans up to ₹10 lakh",
+  "source_url": "https://www.mudra.org.in/",
+  "required_documents": ["aadhaar_card", "bank_passbook"],
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "occupation", "op": "in", "value": ["self_employed", "small_business", "artisan"], "label": "Must run or plan to start a small non-farm business"},
+    {"field": "age", "op": "gte", "value": 18, "label": "Must be at least 18 years old"},
+    {"field": "bank_account", "op": "eq", "value": true, "label": "Must have a bank account"}
+  ]
+}

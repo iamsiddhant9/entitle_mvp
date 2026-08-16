@@ -1,0 +1,17 @@
+{
+  "code": "eshram",
+  "name": "eShram",
+  "domain": "Labour",
+  "description": "National database registration for unorganised workers with accidental insurance cover and access to social security schemes.",
+  "benefit": "eShram card with ₹2 lakh accidental insurance cover",
+  "source_url": "https://eshram.gov.in/",
+  "required_documents": ["aadhaar_card", "bank_passbook"],
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "age", "op": "gte", "value": 16, "label": "Must be at least 16 years old"},
+    {"field": "age", "op": "lte", "value": 59, "label": "Must be at most 59 years old"},
+    {"field": "occupation", "op": "in", "value": ["unorganized_worker", "daily_wage", "artisan", "self_employed", "farmer"], "label": "Must work in the unorganised sector"},
+    {"field": "income_tax_payer", "op": "eq", "value": false, "label": "Must not be an income tax payer"},
+    {"field": "aadhaar_linked", "op": "eq", "value": true, "label": "Aadhaar must be linked to an active mobile number"}
+  ]
+}

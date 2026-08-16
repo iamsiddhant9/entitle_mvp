@@ -1,0 +1,18 @@
+{
+  "code": "ladli_behna",
+  "name": "Ladli Behna Yojana",
+  "domain": "State Welfare",
+  "description": "Monthly financial assistance for women in Madhya Pradesh to improve their health, nutrition and economic independence.",
+  "benefit": "₹1,250 per month financial assistance",
+  "source_url": "https://cmladlibahna.mp.gov.in/",
+  "required_documents": ["aadhaar_card", "bank_passbook", "income_certificate"],
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "gender", "op": "eq", "value": "female", "label": "Must be a woman"},
+    {"field": "state", "op": "eq", "value": "Madhya Pradesh", "label": "Must be a resident of Madhya Pradesh"},
+    {"field": "age", "op": "gte", "value": 21, "label": "Must be at least 21 years old"},
+    {"field": "age", "op": "lte", "value": 60, "label": "Must be at most 60 years old"},
+    {"field": "marital_status", "op": "in", "value": ["married", "widowed", "divorced"], "label": "Must be a married, widowed or divorced woman"},
+    {"field": "income", "op": "lte", "value": 250000, "label": "Annual family income must be at most ₹2,50,000"}
+  ]
+}

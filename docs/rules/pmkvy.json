@@ -1,0 +1,15 @@
+{
+  "code": "pmkvy",
+  "name": "PM Kaushal Vikas Yojana",
+  "domain": "Skill Development",
+  "description": "Free short-term skill development training and certification with placement assistance for Indian youth.",
+  "benefit": "Free skill training, certification and placement support",
+  "source_url": "https://www.pmkvyofficial.org/",
+  "required_documents": ["aadhaar_card"],
+  "near_miss_threshold": 1,
+  "conditions": [
+    {"field": "age", "op": "gte", "value": 15, "label": "Must be at least 15 years old"},
+    {"field": "age", "op": "lte", "value": 45, "label": "Must be at most 45 years old"},
+    {"field": "occupation", "op": "in", "value": ["unemployed", "student", "unorganized_worker", "daily_wage"], "label": "Should be a student, unemployed, or an informal sector worker seeking skills"}
+  ]
+}
