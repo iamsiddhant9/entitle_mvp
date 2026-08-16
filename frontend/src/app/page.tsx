@@ -96,7 +96,10 @@ const trustPillars = [
 const footerLinks = {
   Citizen: ["Check Eligibility", "Verify Certificate", "Document Wallet", "My Determination"],
   "Important Links": ["DigiLocker", "MyGov.in", "India.gov.in", "UMANG", "Polygon Explorer"],
-  Platform: ["About Entitle", "How It Works", "GitHub (Open Source)",/* ─── HEADER (shared structure) ─── */
+  Platform: ["About Entitle", "How It Works", "GitHub (Open Source)", "Privacy Policy"],
+};
+
+/* ─── HEADER (shared structure) ─── */
 function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) {
   const [lang, setLang] = useState("en");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
