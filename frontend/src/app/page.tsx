@@ -242,11 +242,6 @@ function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) 
       </header>
     </>
   );
-}>
-        </div>
-      </header>
-    </>
-  );
 }
 
 const typewriterPhrases = [
