@@ -146,17 +146,3 @@ GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 POLYGON_AMOY_RPC_URL = os.environ.get('POLYGON_AMOY_RPC_URL', 'https://rpc-amoy.polygon.technology')
 WALLET_PRIVATE_KEY = os.environ.get('WALLET_PRIVATE_KEY', '')
 ELIGIBILITY_REGISTRY_ADDRESS = os.environ.get('ELIGIBILITY_REGISTRY_ADDRESS', '')
-
-# DigiLocker Configuration
-DIGILOCKER_CLIENT_ID = os.environ.get('DIGILOCKER_CLIENT_ID', '')
-DIGILOCKER_CLIENT_SECRET = os.environ.get('DIGILOCKER_CLIENT_SECRET', '')
-DIGILOCKER_REDIRECT_URI = os.environ.get('DIGILOCKER_REDIRECT_URI', 'http://localhost:8000/api/documents/digilocker/callback/')
-DIGILOCKER_BASE_URL = os.environ.get('DIGILOCKER_BASE_URL', 'https://api.digitallocker.gov.in/public/oauth2/1')
-
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
-
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-    }
-}
