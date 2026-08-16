@@ -7,6 +7,7 @@ import {
   type DigiLockerDocType,
 } from "@/lib/digilocker";
 
+
 interface DigiLockerButtonProps {
   citizenId: string;
   /** Defaults to ["aadhaar_card", "pan_card"] if not provided */
