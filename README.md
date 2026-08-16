@@ -126,10 +126,18 @@ entitle_mvp/
 │       │   └── urls.py
 │       │
 │       ├── 📄 documents/         ← [RIYA/NEETI] OCR + document upload pipeline
-│       │   ├── models.py         (Document model)
+│       │   ├── models.py         (Document model + extraction provenance)
+│       │   ├── document_types.py (canonical doc types + extraction schemas)
 │       │   ├── views.py          (POST /api/documents/upload/, GET /api/documents/missing/)
 │       │   ├── services/
-│       │   │   └── ocr.py        ← Blur detection + Gemini Vision extraction
+│       │   │   ├── ocr.py             ← pipeline orchestrator
+│       │   │   ├── file_validation.py ← size / content-sniffed type / bomb guard
+│       │   │   ├── preprocessing.py   ← EXIF orientation, resize for Vision
+│       │   │   ├── quality.py         ← variance-of-Laplacian blur detection
+│       │   │   ├── gemini_vision.py   ← structured Gemini Vision extraction
+│       │   │   ├── normalization.py   ← canonical field names + Aadhaar masking
+│       │   │   ├── expiry.py          ← document expiry evaluation
+│       │   │   └── profile_mapping.py ← confirmed data → CitizenProfile
 │       │   └── urls.py
 │       │
 │       └── 🏆 certificates/      ← [SIDDHANT] Blockchain hashing & issuance
@@ -218,6 +226,11 @@ from apps.certificates.services.blockchain import store_hash_on_chain
 4. Wire `evaluate()` into the eligibility API view, save `EligibilityResult`
 5. Gemini text explainability — plain-language explanation in Hindi/English
 6. Document upload + blur detection + Gemini Vision OCR + confirmation endpoint
+   - Extraction is never faked: a missing API key or a failed call returns empty
+     `extracted_fields` with an `extraction_status` explaining why
+   - Confirmation is the trust boundary — only confirmed, in-date documents populate
+     `CitizenProfile`, and only into fields the citizen left empty
+   - Images only (JPEG/PNG/WEBP, 10 MB / 50 MP); PDFs are not supported
 
 **Interfaces to consume from Siddhant:**
 ```python

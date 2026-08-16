@@ -146,3 +146,38 @@ GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 POLYGON_AMOY_RPC_URL = os.environ.get('POLYGON_AMOY_RPC_URL', 'https://rpc-amoy.polygon.technology')
 WALLET_PRIVATE_KEY = os.environ.get('WALLET_PRIVATE_KEY', '')
 ELIGIBILITY_REGISTRY_ADDRESS = os.environ.get('ELIGIBILITY_REGISTRY_ADDRESS', '')
+
+# Gemini model configuration (shared by document extraction).
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.5-flash')
+GEMINI_TIMEOUT_MS = int(os.environ.get('GEMINI_TIMEOUT_MS', '30000'))
+
+# Document upload / OCR pipeline limits.
+#   MAX_UPLOAD_BYTES  - 10 MiB: fits a high-resolution phone photo of a certificate
+#                       while bounding per-request memory use.
+#   MAX_IMAGE_PIXELS  - 50 MP: decompression-bomb guard, checked from the image header
+#                       before any pixel data is decoded.
+#   BLUR_THRESHOLD    - variance of the Laplacian below which a document is treated as
+#                       unreadable. Calibrated in apps/documents/services/quality.py;
+#                       sharp documents measure 50,000+, heavy blur under 600.
+DOCUMENT_MAX_UPLOAD_BYTES = int(os.environ.get('DOCUMENT_MAX_UPLOAD_BYTES', 10 * 1024 * 1024))
+DOCUMENT_MAX_IMAGE_PIXELS = int(os.environ.get('DOCUMENT_MAX_IMAGE_PIXELS', 50_000_000))
+DOCUMENT_BLUR_THRESHOLD = float(os.environ.get('DOCUMENT_BLUR_THRESHOLD', '300'))
+DOCUMENT_ALLOWED_IMAGE_FORMATS = ('JPEG', 'PNG', 'WEBP')
+
+# DigiLocker Configuration
+DIGILOCKER_CLIENT_ID = os.environ.get('DIGILOCKER_CLIENT_ID', '')
+DIGILOCKER_CLIENT_SECRET = os.environ.get('DIGILOCKER_CLIENT_SECRET', '')
+DIGILOCKER_REDIRECT_URI = os.environ.get('DIGILOCKER_REDIRECT_URI', 'http://localhost:8000/api/documents/digilocker/callback/')
+DIGILOCKER_BASE_URL = os.environ.get('DIGILOCKER_BASE_URL', 'https://api.digitallocker.gov.in/public/oauth2/1')
+
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+
+# NOTE: LocMemCache is per-process. The DigiLocker OAuth token is cached here between the
+# callback and the fetch call, so with more than one worker process those two requests can
+# land on different workers and the token will appear to be missing. Fine for local dev;
+# use a shared cache (Redis/Memcached) before running multiple workers.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    }
+}
