@@ -36,6 +36,7 @@ function StatusBadge({ status }: { status: string }) {
 
 const navItems = [
   { label: "Overview", href: "/" },
+  { label: "My Profile", href: "/profile" },
   { label: "My determination", href: "/dashboard", active: true },
   { label: "Schemes directory", href: "/schemes" },
   { label: "Documents", href: "/documents" },

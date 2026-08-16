@@ -422,6 +422,7 @@ function DocumentStatusInner() {
           <nav className="flex items-center">
             {[
               ["Overview", "/", false],
+              ["My Profile", "/profile", false],
               ["My determination", "/dashboard", false],
               ["Schemes directory", "/schemes", false],
               ["Documents", "/documents", true],

@@ -146,6 +146,7 @@ function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) 
           <nav className="hidden md:flex items-center gap-1">
             {[
               ["Overview", "/", true],
+              ["My Profile", "/profile", false],
               ["My determination", "/dashboard", false],
               ["Schemes directory", "#schemes", false],
               ["Documents", "/documents", false],
