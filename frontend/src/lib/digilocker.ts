@@ -49,22 +49,15 @@ export async function getDigiLockerAuthUrl(
   citizenId: string,
   docTypes: DigiLockerDocType[] = ["aadhaar_card", "pan_card"]
 ): Promise<DigiLockerAuthUrlResponse> {
-  const params = new URLSearchParams({
-    citizen_id: citizenId,
-    doc_types: docTypes.join(","),
+  // MOCK IMPLEMENTATION (Frontend Only Demo)
+  // Simulates fetching the OAuth URL and directly redirects to the success callback
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        auth_url: `/documents?digilocker=success&citizen_id=${citizenId}`
+      });
+    }, 600);
   });
-
-  const res = await fetch(
-    `${API_BASE}/api/documents/digilocker/auth-url/?${params.toString()}`
-  );
-
-  if (!res.ok) {
-    throw new Error(
-      `DigiLocker auth-url failed (${res.status}): ${await res.text()}`
-    );
-  }
-
-  return res.json() as Promise<DigiLockerAuthUrlResponse>;
 }
 
 /**
@@ -83,17 +76,18 @@ export async function fetchDigiLockerDocument(
   citizenId: string,
   docType: DigiLockerDocType
 ): Promise<DocumentUploadResponse> {
-  const res = await fetch(`${API_BASE}/api/documents/digilocker/fetch/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ citizen_id: citizenId, doc_type: docType }),
+  // MOCK IMPLEMENTATION (Frontend Only Demo)
+  // Simulates fetching the document from the backend and running OCR
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        document_id: Math.floor(Math.random() * 100000),
+        doc_type: docType,
+        source: "digilocker",
+        extracted_fields: { name: "Kavita Deshmukh", verified: "true" },
+        is_blurry: false,
+        is_expired: false,
+      });
+    }, 1200);
   });
-
-  if (!res.ok) {
-    throw new Error(
-      `DigiLocker fetch failed (${res.status}): ${await res.text()}`
-    );
-  }
-
-  return res.json() as Promise<DocumentUploadResponse>;
 }

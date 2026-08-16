@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Open_Sans, Oswald } from "next/font/google";
 import "./globals.css";
+import { CitizenProfileProvider } from "@/context/CitizenProfileContext";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -25,7 +26,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={`${openSans.variable} ${oswald.variable} min-h-full flex flex-col bg-white antialiased`}>{children}</body>
+      <body className={`${openSans.variable} ${oswald.variable} min-h-full flex flex-col bg-white antialiased`}>
+        <CitizenProfileProvider>
+          {children}
+        </CitizenProfileProvider>
+      </body>
     </html>
   );
 }
