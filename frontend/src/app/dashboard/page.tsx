@@ -120,7 +120,7 @@ export default function Dashboard() {
       <div className="text-[11.5px] font-medium py-2 px-6" style={{ background: "#1C1C1C", color: "#A0A0A0" }}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <a href="#main" className="hover:text-white transition-colors">Skip to content</a>
+            <a href="#main" onClick={e => e.preventDefault()} className="hover:text-white transition-colors">Skip to content</a>
             <span className="text-[#3A3A3A]">|</span>
             <span>A public-interest service. Not a Government of India portal.</span>
           </div>
@@ -373,8 +373,8 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
           <p className="text-[12px] text-[#94A3B8]">© 2026 Entitle Project — An independent welfare access initiative. Not affiliated with the Government of India.</p>
           <div className="flex items-center gap-5 text-[12px] text-[#64748B]">
-            <a href="#" className="hover:text-[#0B3CC8] transition-colors">Privacy</a>
-            <a href="#" className="hover:text-[#0B3CC8] transition-colors">Terms</a>
+            <a href="#" onClick={e => e.preventDefault()} className="hover:text-[#0B3CC8] transition-colors">Privacy</a>
+            <a href="#" onClick={e => e.preventDefault()} className="hover:text-[#0B3CC8] transition-colors">Terms</a>
           </div>
         </div>
       </footer>

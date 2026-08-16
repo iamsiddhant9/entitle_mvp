@@ -300,6 +300,22 @@ class DocumentMissingView(APIView):
         )
 
 
+class DocumentListView(APIView):
+    """
+    GET /api/documents/list/{citizen_id}/
+    Returns all documents uploaded by a citizen, ordered by creation date descending.
+    """
+
+    def get(self, request, citizen_id, *args, **kwargs):
+        citizen = _lookup_citizen(citizen_id)
+        if citizen is None:
+            raise NotFound(detail=f"Citizen with ID '{citizen_id}' not found.")
+
+        documents = Document.objects.filter(citizen=citizen).order_by('-created_at')
+        serializer = DocumentUploadSerializer(documents, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class DigiLockerAuthURLView(APIView):
     """
     GET /api/documents/digilocker/auth-url/

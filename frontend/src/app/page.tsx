@@ -14,6 +14,8 @@ import {
   Phone,
   Mail,
   ExternalLink,
+  Menu,
+  X,
 } from "lucide-react";
 
 /* ─── DATA ─── */
@@ -94,13 +96,50 @@ const trustPillars = [
 const footerLinks = {
   Citizen: ["Check Eligibility", "Verify Certificate", "Document Wallet", "My Determination"],
   "Important Links": ["DigiLocker", "MyGov.in", "India.gov.in", "UMANG", "Polygon Explorer"],
-  Platform: ["About Entitle", "How It Works", "GitHub (Open Source)", "Privacy Policy"],
-};
-
-/* ─── HEADER (shared structure) ─── */
+  Platform: ["About Entitle", "How It Works", "GitHub (Open Source)",/* ─── HEADER (shared structure) ─── */
 function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) {
+  const [lang, setLang] = useState("en");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      if (document.cookie.includes("googtrans=/en/hi")) {
+        setLang("hi");
+      }
+    }
+  }, []);
+
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selected = e.target.value;
+    setLang(selected);
+    if (selected === "en") {
+      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + window.location.hostname;
+    } else {
+      document.cookie = `googtrans=/en/${selected}; path=/;`;
+      document.cookie = `googtrans=/en/${selected}; path=/; domain=${window.location.hostname}`;
+    }
+    window.location.reload();
+  };
+
+  const setZoom = (level: number) => {
+    if (typeof document !== "undefined") {
+      document.documentElement.style.fontSize = level === 0 ? "16px" : level > 0 ? "18px" : "14px";
+    }
+  };
+
+  const navLinks = [
+    ["Overview", "/", true],
+    ["My Profile", "/profile", false],
+    ["My determination", "/dashboard", false],
+    ["Schemes directory", "/schemes", false],
+    ["Documents", "/documents", false],
+    ["Help", "#faq", false],
+  ];
+
   return (
     <>
+      <div id="google_translate_element" style={{ position: 'absolute', left: '-9999px', top: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}></div>
       {/* Tricolor */}
       <div className="flex h-[5px] w-full">
         <div className="flex-1" style={{ background: "#FF9933" }} />
@@ -111,47 +150,47 @@ function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) 
       {/* Utility bar */}
       <div className="text-[11.5px] font-medium py-2 px-6" style={{ background: "#1C1C1C", color: "#A0A0A0" }}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 hidden sm:flex">
             <a href="#main" className="hover:text-white transition-colors">Skip to content</a>
             <span className="text-[#3A3A3A]">|</span>
             <span>A public-interest service. Not a Government of India portal.</span>
           </div>
-          <div className="flex items-center gap-4">
-            <span>Helpline <strong className="text-white">1800-11-0001</strong></span>
-            <span className="text-[#3A3A3A]">|</span>
+          <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+            <span className="hidden sm:inline">Helpline <strong className="text-white">1800-11-0001</strong></span>
+            <span className="text-[#3A3A3A] hidden sm:inline">|</span>
             <div className="flex items-center gap-2">
-              <button className="hover:text-white transition-colors text-xs">A-</button>
-              <button className="text-white font-bold text-sm">A</button>
-              <button className="hover:text-white transition-colors text-sm font-bold">A+</button>
+              <button onClick={() => setZoom(-1)} className="hover:text-white transition-colors text-xs">A-</button>
+              <button onClick={() => setZoom(0)} className="text-white font-bold text-sm">A</button>
+              <button onClick={() => setZoom(1)} className="hover:text-white transition-colors text-sm font-bold">A+</button>
             </div>
             <span className="text-[#3A3A3A]">|</span>
-            <button className="hover:text-white transition-colors">English</button>
+            <select
+              value={lang}
+              onChange={handleLanguageChange}
+              className="bg-[#0B3CC8] text-white font-bold px-2 py-1 rounded outline-none cursor-pointer"
+            >
+              <option value="en">English</option>
+              <option value="hi">हिंदी (Hindi)</option>
+            </select>
           </div>
         </div>
       </div>
 
       {/* Main header */}
-      <header className="bg-white border-b border-[#E2E8F0]">
+      <header className="bg-white border-b border-[#E2E8F0] relative z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4">
-            <div className="w-11 h-11 border-2 flex items-center justify-center font-bold text-xl" style={{ borderColor: "#0B3CC8", color: "#0B3CC8", fontFamily: "var(--font-open-sans)" }}>
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 border-2 flex items-center justify-center font-bold text-lg sm:text-xl" style={{ borderColor: "#0B3CC8", color: "#0B3CC8", fontFamily: "var(--font-open-sans)" }}>
               E
             </div>
             <div>
-              <div className="text-xl font-bold tracking-tight" style={{ color: "#0B3CC8", fontFamily: "var(--font-open-sans)" }}>ENTITLE</div>
-              <div className="text-[11px] text-[#64748B] mt-0.5 font-medium">Welfare Entitlement Assistance · Citizen Services</div>
+              <div className="text-lg sm:text-xl font-bold tracking-tight" style={{ color: "#0B3CC8", fontFamily: "var(--font-open-sans)" }}>ENTITLE</div>
+              <div className="text-[10px] sm:text-[11px] text-[#64748B] mt-0.5 font-medium hidden sm:block">Welfare Entitlement Assistance · Citizen Services</div>
             </div>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
-            {[
-              ["Overview", "/", true],
-              ["My Profile", "/profile", false],
-              ["My determination", "/dashboard", false],
-              ["Schemes directory", "#schemes", false],
-              ["Documents", "/documents", false],
-              ["Help", "#faq", false],
-            ].map(([label, href, active]) => (
+            {navLinks.map(([label, href, active]) => (
               <Link
                 key={label as string}
                 href={href as string}
@@ -163,11 +202,47 @@ function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) 
             ))}
           </nav>
 
-          <Link href={ctaHref}>
-            <button className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded transition-all hover:opacity-90" style={{ background: "#0B3CC8", color: "#fff" }}>
-              {ctaLabel} <ArrowRight className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <Link href={ctaHref} className="hidden sm:block">
+              <button className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded transition-all hover:opacity-90" style={{ background: "#0B3CC8", color: "#fff" }}>
+                {ctaLabel} <ArrowRight className="w-4 h-4" />
+              </button>
+            </Link>
+            
+            {/* Mobile menu button */}
+            <button 
+              className="md:hidden p-2 text-[#0F172A]" 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
-          </Link>
+          </div>
+        </div>
+
+        {/* Mobile dropdown */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-[#E2E8F0] shadow-lg py-4 px-6 flex flex-col gap-4">
+            {navLinks.map(([label, href, active]) => (
+              <Link
+                key={label as string}
+                href={href as string}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`text-base font-medium py-2 ${active ? "text-[#0B3CC8]" : "text-[#475569]"}`}
+              >
+                {label}
+              </Link>
+            ))}
+            <Link href={ctaHref} onClick={() => setIsMobileMenuOpen(false)}>
+              <button className="w-full flex items-center justify-center gap-2 text-sm font-semibold px-5 py-3 mt-2 rounded" style={{ background: "#0B3CC8", color: "#fff" }}>
+                {ctaLabel} <ArrowRight className="w-4 h-4" />
+              </button>
+            </Link>
+          </div>
+        )}
+      </header>
+    </>
+  );
+}>
         </div>
       </header>
     </>
@@ -254,7 +329,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <h1 className="text-[3rem] md:text-[4rem] font-bold leading-[1.08] mb-5 text-white min-h-[140px] md:min-h-[160px]" style={{ letterSpacing: "-0.035em", fontFamily: "var(--font-open-sans), sans-serif" }}>
+          <h1 translate="no" className="notranslate text-[3rem] md:text-[4rem] font-bold leading-[1.08] mb-5 text-white min-h-[140px] md:min-h-[160px]" style={{ letterSpacing: "-0.035em", fontFamily: "var(--font-open-sans), sans-serif" }}>
             <HeroTypewriter />
           </h1>
 
@@ -323,7 +398,7 @@ export default function LandingPage() {
                 Assessed National Welfare Programs
               </h2>
             </div>
-            <a href="#" className="text-sm font-semibold hover:underline hidden md:block" style={{ color: "#0B3CC8" }}>
+            <a href="/schemes" className="text-sm font-semibold hover:underline hidden md:block" style={{ color: "#0B3CC8" }}>
               View all 106 schemes →
             </a>
           </div>
@@ -359,7 +434,7 @@ export default function LandingPage() {
 
             <div className="px-7 py-4 border-t border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-between">
               <p className="text-[12px] text-[#64748B]">Showing 4 of 106 schemes tracked</p>
-              <a href="#" className="text-[12px] font-semibold hover:underline" style={{ color: "#0B3CC8" }}>View all 106 schemes →</a>
+              <a href="/schemes" className="text-[12px] font-semibold hover:underline" style={{ color: "#0B3CC8" }}>View all 106 schemes →</a>
             </div>
           </div>
         </div>
@@ -464,12 +539,13 @@ export default function LandingPage() {
           <h2 className="text-[2rem] font-bold text-white mb-4" style={{ letterSpacing: "-0.025em" }}>Already have an Entitle certificate?</h2>
           <p className="text-white/60 mb-8 max-w-xl mx-auto">Verify any eligibility certificate instantly on the Polygon blockchain to ensure it is authentic and tamper-proof.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
-            <input type="text" placeholder="Enter Certificate Hash..." className="w-full px-4 py-3 rounded text-sm outline-none border border-white/20 bg-white/5 text-white placeholder-white/30 focus:border-[#0B3CC8] transition-colors" />
-            <Link href="/certificate" className="w-full sm:w-auto shrink-0">
-              <button className="w-full font-semibold px-6 py-3 rounded text-sm transition-all hover:opacity-90" style={{ background: "#0B3CC8", color: "#fff" }}>
-                Verify On-Chain
-              </button>
-            </Link>
+            <input id="hashInput" type="text" placeholder="Enter Certificate ID..." className="w-full px-4 py-3 rounded text-sm outline-none border border-white/20 bg-white/5 text-white placeholder-white/30 focus:border-[#0B3CC8] transition-colors" />
+            <button onClick={() => {
+              const el = document.getElementById("hashInput") as HTMLInputElement;
+              if (el && el.value) window.location.href = `/certificate?id=${el.value}`;
+            }} className="w-full sm:w-auto shrink-0 font-semibold px-6 py-3 rounded text-sm transition-all hover:opacity-90" style={{ background: "#0B3CC8", color: "#fff" }}>
+              Verify On-Chain
+            </button>
           </div>
         </div>
       </section>
@@ -543,7 +619,7 @@ export default function LandingPage() {
                 <ul className="space-y-3">
                   {links.map((l) => (
                     <li key={l}>
-                      <a href="#" className="text-[13px] text-white/40 hover:text-white/80 transition-colors">{l}</a>
+                      <a href="#" onClick={e => e.preventDefault()} className="text-[13px] text-white/40 hover:text-white/80 transition-colors">{l}</a>
                     </li>
                   ))}
                 </ul>
@@ -557,7 +633,7 @@ export default function LandingPage() {
             </p>
             <div className="flex items-center gap-5 text-[12px] text-white/30">
               {["National Portal", "RTI", "Accessibility", "Terms", "Privacy"].map((l) => (
-                <a key={l} href="#" className="hover:text-white/60 transition-colors">{l}</a>
+                <a key={l} href="#" onClick={e => e.preventDefault()} className="hover:text-white/60 transition-colors">{l}</a>
               ))}
             </div>
           </div>

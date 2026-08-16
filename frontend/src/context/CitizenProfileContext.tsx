@@ -35,6 +35,8 @@ interface CitizenContextValue {
   saveProfile: (patch: CitizenProfilePatch) => Promise<void>;
   /** Re-run eligibility evaluation and refresh results. */
   refreshEligibility: () => Promise<void>;
+  /** Refresh the citizen profile data from the backend. */
+  refreshProfile: () => Promise<void>;
   /** Clear error message. */
   clearError: () => void;
 }
@@ -130,6 +132,16 @@ export function CitizenProfileProvider({ children }: { children: ReactNode }) {
     }
   }, [citizenId]);
 
+  const refreshProfile = useCallback(async () => {
+    if (!citizenId) return;
+    try {
+      const prof = await getCitizenProfile(citizenId);
+      setProfile(prof);
+    } catch (e) {
+      console.error("Failed to refresh profile:", e);
+    }
+  }, [citizenId]);
+
   const clearError = useCallback(() => setError(null), []);
 
   return (
@@ -143,6 +155,7 @@ export function CitizenProfileProvider({ children }: { children: ReactNode }) {
         initSession,
         saveProfile,
         refreshEligibility,
+        refreshProfile,
         clearError,
       }}
     >

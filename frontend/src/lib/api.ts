@@ -402,6 +402,13 @@ export async function getMissingDocuments(
   );
 }
 
+/** GET /api/documents/list/{citizen_id}/ — fetch all uploaded documents for a citizen. */
+export async function listDocuments(
+  citizenId: string
+): Promise<DocumentUploadResponse[]> {
+  return request<DocumentUploadResponse[]>(`/api/documents/list/${citizenId}/`);
+}
+
 // ---------------------------------------------------------------------------
 // 6. Certificates & Verification
 // ---------------------------------------------------------------------------

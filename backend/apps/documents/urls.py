@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import DocumentUploadView, DocumentConfirmView, DocumentMissingView
+from .views import DocumentUploadView, DocumentConfirmView, DocumentMissingView, DocumentListView
 
 urlpatterns = [
     path('upload/', DocumentUploadView.as_view(), name='document-upload'),
     path('<int:id>/confirm/', DocumentConfirmView.as_view(), name='document-confirm'),
     path('missing/<str:citizen_id>/<str:scheme_code>/', DocumentMissingView.as_view(), name='document-missing'),
+    path('list/<str:citizen_id>/', DocumentListView.as_view(), name='document-list'),
 ]

@@ -11,7 +11,7 @@ import {
 import DigiLockerButton from "@/components/documents/DigiLockerButton";
 import { useCitizen } from "@/context/CitizenProfileContext";
 import {
-  uploadDocument, confirmDocument,
+  uploadDocument, confirmDocument, listDocuments,
   DocType, DocumentUploadResponse, ApiError,
 } from "@/lib/api";
 
@@ -315,7 +315,7 @@ function ConfirmModal({ doc, citizenId, onConfirmed, onClose }: ConfirmModalProp
 
 function DocumentStatusInner() {
   const searchParams = useSearchParams();
-  const { citizenId } = useCitizen();
+  const { citizenId, refreshProfile, refreshEligibility } = useCitizen();
 
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [pendingUpload, setPendingUpload] = useState<DocumentUploadResponse | null>(null);
@@ -338,6 +338,25 @@ function DocumentStatusInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /* Fetch existing documents on load */
+  useEffect(() => {
+    if (citizenId) {
+      listDocuments(citizenId).then(docs => {
+        const mapped: DocumentRecord[] = docs.map(d => ({
+          id: d.document_id,
+          type: d.doc_type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+          issuer: d.confirmed ? "Confirmed via Entitle" : "Pending confirmation",
+          expires: d.expiry_date ?? (d.expiry_status === "not_applicable" ? "Not applicable" : "—"),
+          status: d.confirmed ? "verified" : (d.is_expired ? "expired" : "pending"),
+          source: d.extraction_source === "gemini_vision" ? "manual" : "digilocker",
+          extractedFields: d.extracted_fields,
+          needsConfirm: !d.confirmed,
+        }));
+        setDocuments(mapped);
+      }).catch(e => console.error("Failed to load documents:", e));
+    }
+  }, [citizenId]);
+
   function handleUploaded(doc: DocumentUploadResponse) {
     // Add as pending confirmation
     const record: DocumentRecord = {
@@ -356,7 +375,7 @@ function DocumentStatusInner() {
     setTimeout(() => setSuccessBanner(null), 8000);
   }
 
-  function handleConfirmed(documentId: number) {
+  async function handleConfirmed(documentId: number) {
     setDocuments(prev =>
       prev.map(d =>
         d.id === documentId
@@ -366,6 +385,11 @@ function DocumentStatusInner() {
     );
     setPendingUpload(null);
     setSuccessBanner("Document confirmed and added to your profile!");
+    
+    // Refresh the global profile context immediately!
+    await refreshProfile();
+    await refreshEligibility();
+
     setTimeout(() => setSuccessBanner(null), 5000);
   }
 
