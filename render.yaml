@@ -1,0 +1,34 @@
+databases:
+  - name: entitle-db
+    databaseName: entitle
+    user: entitle_user
+    plan: free
+
+services:
+  - type: web
+    name: entitle-backend
+    env: python
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py seed_schemes"
+    startCommand: "gunicorn entitle.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: entitle-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: CORS_ALLOW_ALL_ORIGINS
+        value: "True"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: POLYGON_AMOY_RPC_URL
+        sync: false
+      - key: WALLET_PRIVATE_KEY
+        sync: false
+      - key: ELIGIBILITY_REGISTRY_ADDRESS
+        sync: false
