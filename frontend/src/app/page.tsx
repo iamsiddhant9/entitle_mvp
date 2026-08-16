@@ -354,7 +354,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <h1 translate="no" className="notranslate text-[3rem] md:text-[4rem] font-bold leading-[1.08] mb-5 text-white min-h-[140px] md:min-h-[160px]" style={{ letterSpacing: "-0.035em", fontFamily: "var(--font-open-sans), sans-serif" }}>
+          <h1 translate="no" className="notranslate text-[3rem] md:text-[4rem] font-bold leading-[1.08] mb-5 text-white h-[200px] sm:h-[160px] md:h-[160px] flex flex-col justify-end md:block" style={{ letterSpacing: "-0.035em", fontFamily: "var(--font-open-sans), sans-serif" }}>
             <HeroTypewriter />
           </h1>
 
