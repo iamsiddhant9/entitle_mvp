@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, X, Send, Loader2, Bot } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 
 type Message = {
   id: string;
@@ -176,6 +178,7 @@ export default function ChatbotWidget() {
                       m.content
                     ) : m.content ? (
                       <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkBreaks]}
                         components={{
                           ul: ({ children }) => <ul className="list-disc pl-4 space-y-1">{children}</ul>,
                           ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1">{children}</ol>,
