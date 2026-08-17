@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       messages,
     });
 
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error('Error in chat route:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
