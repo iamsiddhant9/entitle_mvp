@@ -1,14 +1,24 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 
-const groq = createOpenAI({
-  apiKey: process.env.GROQ_API_KEY || '',
-  baseURL: 'https://api.groq.com/openai/v1',
-});
-
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
+  const apiKey = process.env.GROQ_API_KEY;
+  
+  if (!apiKey) {
+    console.error('GROQ_API_KEY is not set in environment variables');
+    return new Response(JSON.stringify({ error: 'GROQ_API_KEY not configured on server' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const groq = createOpenAI({
+    apiKey,
+    baseURL: 'https://api.groq.com/openai/v1',
+  });
+
   try {
     const { messages } = await req.json();
 
@@ -32,7 +42,8 @@ RESPONSE FORMAT RULES (follow strictly):
     return result.toTextStreamResponse();
   } catch (error) {
     console.error('Error in chat route:', error);
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: 'Internal Server Error', detail: message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
