@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
 
     const result = streamText({
-      model: groq('qwen/qwen3.6-27b'),
+      model: groq('llama-3.1-8b-instant'),
       system: `You are the Entitle platform assistant. You help Indian citizens find out their eligibility for government welfare schemes.
 
 RESPONSE FORMAT RULES (follow strictly):
@@ -28,8 +28,8 @@ RESPONSE FORMAT RULES (follow strictly):
       messages,
     });
 
-    // Stream plain text - our custom frontend handles this directly
-    return result.toTextStreamResponse();
+    // Stream standard data stream format which ChatbotWidget parses
+    return result.toDataStreamResponse();
   } catch (error) {
     console.error('Error in chat route:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
