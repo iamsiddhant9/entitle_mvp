@@ -103,6 +103,7 @@ export interface CitizenSession {
 export interface CitizenProfile {
   id: number;
   citizen_id: string; // UUID
+  full_name: string | null;
   age: number | null;
   state: string | null;
   occupation: string | null;

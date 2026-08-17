@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useCitizen } from "@/context/CitizenProfileContext";
 import {
   User,
   ChevronDown,
@@ -144,6 +145,7 @@ function FAQItem({
 
 export default function HelpPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const { profile } = useCitizen();
 
   return (
     <div
@@ -232,11 +234,11 @@ export default function HelpPage() {
 
             <div className="hidden sm:block">
               <div className="font-semibold text-[#0F172A] text-sm">
-                Kavita Deshmukh
+                {profile?.full_name || "Citizen"}
               </div>
 
               <div className="text-[11px] text-[#64748B]">
-                Wardha, Maharashtra
+                {profile?.state ? `${profile.state}, India` : "Unknown Location"}
               </div>
             </div>
           </div>

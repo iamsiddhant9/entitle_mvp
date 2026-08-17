@@ -26,6 +26,7 @@ interface DocumentRecord {
   source?: "manual" | "digilocker";
   extractedFields?: Record<string, string | number | boolean | null>;
   needsConfirm?: boolean;
+  extractionStatus?: string;
 }
 
 /* ─────────────── STATUS BADGE ─────────────── */
@@ -35,6 +36,12 @@ function StatusBadge({ status }: { status: string }) {
     return (
       <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]">
         <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+      </span>
+    );
+  if (status === "failed")
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded bg-[#FEF2F2] text-[#991B1B] border border-[#FECACA]">
+        <XCircle className="w-3.5 h-3.5" /> Extraction Failed
       </span>
     );
   if (status === "pending")
@@ -347,10 +354,11 @@ function DocumentStatusInner() {
           type: d.doc_type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
           issuer: d.confirmed ? "Confirmed via Entitle" : "Pending confirmation",
           expires: d.expiry_date ?? (d.expiry_status === "not_applicable" ? "Not applicable" : "—"),
-          status: d.confirmed ? "verified" : (d.is_expired ? "expired" : "pending"),
+          status: (d.confirmed && d.extraction_status === "success") ? "verified" : (d.extraction_status === "failed" || d.extraction_status === "not_configured" ? "failed" : (d.is_expired ? "expired" : "pending")),
           source: d.extraction_source === "gemini_vision" ? "manual" : "digilocker",
           extractedFields: d.extracted_fields,
           needsConfirm: !d.confirmed,
+          extractionStatus: d.extraction_status,
         }));
         setDocuments(mapped);
       }).catch(e => console.error("Failed to load documents:", e));
@@ -364,10 +372,11 @@ function DocumentStatusInner() {
       type: doc.doc_type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
       issuer: "Uploaded · Pending confirmation",
       expires: doc.expiry_date ?? (doc.expiry_status === "not_applicable" ? "Not applicable" : "—"),
-      status: "pending",
+      status: (doc.extraction_status === "failed" || doc.extraction_status === "not_configured") ? "failed" : "pending",
       source: "manual",
       extractedFields: doc.extracted_fields,
       needsConfirm: true,
+      extractionStatus: doc.extraction_status,
     };
     setDocuments(prev => [record, ...prev]);
     setPendingUpload(doc);
@@ -575,7 +584,18 @@ function DocumentStatusInner() {
                               {doc.type}
                               {doc.source === "digilocker" && <DigiLockerBadge />}
                             </div>
-                            <div className="text-[11px] text-[#64748B] mt-0.5">ID #{doc.id}</div>
+                            <div className="text-[11px] text-[#64748B] mt-0.5 mb-2">ID #{doc.id}</div>
+                            {doc.extractedFields && Object.keys(doc.extractedFields).length > 0 && (
+                              <div className="bg-[#F8FAFC] p-3 rounded-sm border border-[#E2E8F0] text-[12px] space-y-1.5 min-w-[250px]">
+                                <div className="text-[10px] font-bold text-[#0B3CC8] uppercase tracking-wider mb-1">OCR Extracted Data</div>
+                                {Object.entries(doc.extractedFields).map(([k, v]) => (
+                                  <div key={k} className="flex gap-2">
+                                    <span className="font-semibold text-[#64748B] capitalize w-24 shrink-0">{k.replace(/_/g, " ")}:</span>
+                                    <span className="text-[#0F172A] truncate">{v !== null ? String(v) : "—"}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>

@@ -170,7 +170,14 @@ def _land_owned(fields: dict[str, str]) -> bool | None:
     return None
 
 
+def _derive_name(raw: str | None) -> str | None:
+    if not raw or not isinstance(raw, str):
+        return None
+    return " ".join(raw.split()).strip()
+
+
 _AADHAAR_MAPPINGS = (
+    FieldMapping("full_name", "name", _derive("name", _derive_name)),
     FieldMapping("age", "dob", _derive("dob", age_from_dob)),
     FieldMapping(
         "gender",

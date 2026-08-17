@@ -7,6 +7,7 @@ class CitizenProfileSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'citizen_id',
+            'full_name',
             'age',
             'state',
             'occupation',

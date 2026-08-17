@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useCitizen } from "@/context/CitizenProfileContext";
 import {
   User,
   Search,
@@ -153,6 +154,7 @@ export default function SchemesDirectory() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [openScheme, setOpenScheme] = useState<string | null>(null);
+  const { profile } = useCitizen();
 
   const filteredSchemes = useMemo(() => {
     return schemes.filter((scheme) => {
@@ -251,10 +253,10 @@ export default function SchemesDirectory() {
 
             <div className="hidden sm:block">
               <div className="font-semibold text-[#0F172A] text-sm">
-                Kavita Deshmukh
+                {profile?.full_name || "Citizen"}
               </div>
               <div className="text-[11px] text-[#64748B]">
-                Wardha, Maharashtra
+                {profile?.state ? `${profile.state}, India` : "Unknown Location"}
               </div>
             </div>
           </div>

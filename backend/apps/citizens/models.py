@@ -3,6 +3,7 @@ from django.db import models
 
 class CitizenProfile(models.Model):
     citizen_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, db_index=True)
+    full_name = models.CharField(max_length=150, null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
     state = models.CharField(max_length=100, null=True, blank=True)
     occupation = models.CharField(max_length=50, null=True, blank=True)
