@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import IndiaImpactMap from "./components/IndiaImpactMap";
+import ChatbotWidget from "./components/ChatbotWidget";
 import {
   ArrowRight,
   CheckCircle2,
@@ -667,19 +668,7 @@ export default function LandingPage() {
       </footer>
 
       {/* ── CHATBOT POPUP ── */}
-      <div className="fixed bottom-6 right-6 z-[100]">
-        <Link href="/assistant">
-          <button 
-            className="flex items-center gap-2 px-4 py-3 rounded-full shadow-2xl transition-transform hover:scale-105 group border border-white/20"
-            style={{ background: "#0B3CC8", color: "#fff" }}
-          >
-            <div className="bg-white/20 p-1.5 rounded-full">
-              <MessageSquare className="w-5 h-5" />
-            </div>
-            <span className="font-semibold text-sm mr-1">Chat with Assistant</span>
-          </button>
-        </Link>
-      </div>
+      <ChatbotWidget />
     </div>
   );
 }
