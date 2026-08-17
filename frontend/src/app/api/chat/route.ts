@@ -14,21 +14,13 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
-    // Ensure the system message is at the front
-    const fullMessages = [
-      {
-        role: 'system',
-        content: `You are the Entitle platform assistant. You are a helpful, expert AI that assists citizens with finding out their eligibility for welfare schemes in India. You should be concise, clear, and informative.`,
-      },
-      ...messages,
-    ];
-
     const result = streamText({
-      model: groq('llama3-8b-8192'),
-      messages: fullMessages,
+      model: groq('openai/gpt-oss-20b'),
+      system: `You are the Entitle platform assistant. You are a helpful, expert AI that assists citizens with finding out their eligibility for welfare schemes in India. You should be concise, clear, and informative.`,
+      messages,
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('Error in chat route:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
