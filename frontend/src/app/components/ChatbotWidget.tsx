@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, X, Send, Loader2, Bot } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 type Message = {
   id: string;
@@ -171,13 +172,27 @@ export default function ChatbotWidget() {
                         : "bg-white border border-gray-200 text-gray-800 rounded-bl-sm shadow-sm"
                     }`}
                   >
-                    {m.content || (m.role === "assistant" && isLoading ? (
+                    {m.role === "user" ? (
+                      m.content
+                    ) : m.content ? (
+                      <ReactMarkdown
+                        components={{
+                          ul: ({ children }) => <ul className="list-disc pl-4 space-y-1">{children}</ul>,
+                          ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1">{children}</ol>,
+                          li: ({ children }) => <li className="leading-snug">{children}</li>,
+                          strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                          p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                        }}
+                      >
+                        {m.content}
+                      </ReactMarkdown>
+                    ) : isLoading ? (
                       <span className="flex gap-1 items-center py-1">
                         <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                         <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
                         <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                       </span>
-                    ) : "")}
+                    ) : ""}
                   </div>
                 </div>
               ))
