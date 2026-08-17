@@ -275,7 +275,29 @@ function ConfirmModal({ doc, citizenId, onConfirmed, onClose }: ConfirmModalProp
           </p>
 
           {Object.keys(fields).length === 0 ? (
-            <p className="text-[13px] text-[#64748B] italic mb-4">No fields were extracted (doc type may not support OCR). Confirm to record the document.</p>
+            <div className="space-y-3 mb-5">
+              <div className="flex items-start gap-2 text-[12px] text-[#92400E] bg-[#FFFBEB] border border-[#FDE68A] rounded-sm px-3.5 py-2.5 mb-3">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>OCR couldn&apos;t auto-extract fields. Enter them manually below to save to your profile.</span>
+              </div>
+              {(doc.doc_type === "aadhaar_card" || doc.doc_type === "parent_aadhaar"
+                ? [["name", "Full Name"], ["dob", "Date of Birth"], ["gender", "Gender (Male/Female)"], ["state", "State"]]
+                : doc.doc_type === "income_certificate"
+                ? [["name", "Name"], ["annual_income", "Annual Income"], ["issued_by", "Issued By"]]
+                : [["name", "Name"]]
+              ).map(([key, label]) => (
+                <div key={key}>
+                  <label className="block text-[11px] font-semibold text-[#475569] uppercase tracking-wider mb-1.5">{label}</label>
+                  <input
+                    type="text"
+                    placeholder={`Enter ${label}`}
+                    value={fields[key] ?? ""}
+                    onChange={e => setFields(prev => ({ ...prev, [key]: e.target.value }))}
+                    className="w-full border border-[#E2E8F0] rounded-sm px-3 py-2.5 text-sm text-[#0F172A] focus:outline-none focus:border-[#0B3CC8] transition-colors"
+                  />
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="space-y-3 mb-5">
               {Object.entries(fields).map(([key, val]) => (
@@ -380,8 +402,20 @@ function DocumentStatusInner() {
     };
     setDocuments(prev => [record, ...prev]);
     setPendingUpload(doc);
-    setSuccessBanner(`Document uploaded — Gemini extracted fields. Please confirm them.`);
-    setTimeout(() => setSuccessBanner(null), 8000);
+    
+    if (doc.extraction_status === "not_configured") {
+      setErrorBanner(`OCR not configured: GEMINI_API_KEY is missing or invalid on the server.`);
+    } else if (doc.extraction_status === "skipped_low_quality") {
+      setErrorBanner(`Image quality too low for OCR. Please upload a clearer photo.`);
+    } else if (doc.extraction_status === "failed") {
+      setErrorBanner(`OCR failed (${doc.extraction_error || "unknown error"}). Check Render logs.`);
+    } else if (doc.extraction_status === "success") {
+      setSuccessBanner(`Document uploaded — Gemini extracted fields. Please confirm them.`);
+      setTimeout(() => setSuccessBanner(null), 8000);
+    } else {
+      setSuccessBanner(`Document uploaded. Please confirm the fields.`);
+      setTimeout(() => setSuccessBanner(null), 8000);
+    }
   }
 
   async function handleConfirmed(documentId: number) {
