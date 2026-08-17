@@ -85,7 +85,7 @@ export default function ChatbotWidget() {
               />
               <button
                 type="submit"
-                disabled={isLoading || !input.trim()}
+                disabled={isLoading || !input?.trim()}
                 className="bg-[#0B3CC8] text-white p-2 rounded-full disabled:opacity-50 hover:opacity-90 transition-opacity"
               >
                 <Send className="w-4 h-4" />
