@@ -128,6 +128,7 @@ function ProfilePageInner() {
             </div>
 
             <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+              <ProfileItem icon={<User />} label="Full Name" value={profile.full_name || "Not provided (Scan Aadhaar)"} />
               <ProfileItem icon={<User />} label="Age" value={profile.age ? `${profile.age} years` : "Not provided"} />
               <ProfileItem icon={<Users />} label="Gender" value={profile.gender ? capitalize(profile.gender) : "Not provided"} />
               <ProfileItem icon={<MapPin />} label="State" value={profile.state || "Not provided"} />

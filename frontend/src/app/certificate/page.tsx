@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import QRCode from "react-qr-code";
 import {
   User, Download, Share2, CheckCircle2, Copy,
   ExternalLink, ShieldCheck, Loader2, X,
@@ -54,8 +55,8 @@ function CertificateInner() {
   }
 
   function getVerifyUrl() {
-    if (cert?.qr_payload) return cert.qr_payload;
     if (cert?.explorer_url) return cert.explorer_url;
+    if (cert?.qr_payload) return cert.qr_payload;
     return "#";
   }
 
@@ -279,28 +280,12 @@ function CertificateInner() {
               <p className="text-[11px] font-semibold text-[#64748B] uppercase tracking-widest mb-6">Scan to Verify</p>
               {/* QR code placeholder — renders the real qr_payload URL as text since we don't have a QR library */}
               <div className="w-48 h-48 bg-[#F8FAFC] border-2 border-dashed border-[#CBD5E1] rounded-sm flex items-center justify-center mb-8 p-4">
-                <svg viewBox="0 0 108 108" className="w-full h-full text-[#0F172A]">
-                  <rect x="5" y="5" width="34" height="34" fill="none" stroke="currentColor" strokeWidth="5"/>
-                  <rect x="14" y="14" width="16" height="16" fill="currentColor"/>
-                  <rect x="69" y="5" width="34" height="34" fill="none" stroke="currentColor" strokeWidth="5"/>
-                  <rect x="78" y="14" width="16" height="16" fill="currentColor"/>
-                  <rect x="5" y="69" width="34" height="34" fill="none" stroke="currentColor" strokeWidth="5"/>
-                  <rect x="14" y="78" width="16" height="16" fill="currentColor"/>
-                  <rect x="50" y="5" width="10" height="10" fill="currentColor"/>
-                  <rect x="50" y="22" width="10" height="10" fill="currentColor"/>
-                  <rect x="65" y="50" width="10" height="10" fill="currentColor"/>
-                  <rect x="50" y="65" width="10" height="10" fill="currentColor"/>
-                  <rect x="65" y="80" width="10" height="10" fill="currentColor"/>
-                  <rect x="80" y="65" width="10" height="10" fill="currentColor"/>
-                  <rect x="80" y="80" width="10" height="10" fill="currentColor"/>
-                  <rect x="5" y="50" width="10" height="10" fill="currentColor"/>
-                  <rect x="20" y="50" width="10" height="10" fill="currentColor"/>
-                </svg>
+                <QRCode value={getVerifyUrl()} size={150} fgColor="#0F172A" />
               </div>
               <p className="text-[13px] text-[#64748B] leading-relaxed mb-8">
                 Anyone can scan this QR code to independently verify authenticity on the Polygon blockchain — no login required.
               </p>
-              <a href={getVerifyUrl()} target="_blank" rel="noopener noreferrer" className="w-full">
+              <a href={cert?.explorer_url || "#"} target="_blank" rel="noopener noreferrer" className="w-full">
                 <button className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3 rounded-sm text-sm hover:opacity-90 transition-opacity mb-4 shadow-sm" style={{ background: "#0B3CC8" }}>
                   <ExternalLink className="w-4 h-4" /> Verify On Explorer
                 </button>
