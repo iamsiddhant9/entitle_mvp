@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
 
     const result = streamText({
-      model: groq('openai/gpt-oss-20b'),
+      model: groq('qwen/qwen3.6-27b'),
       system: `You are the Entitle platform assistant. You are a helpful, expert AI that assists citizens with finding out their eligibility for welfare schemes in India. You should be concise, clear, and informative.`,
       messages,
     });
