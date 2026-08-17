@@ -73,34 +73,8 @@ export default function ChatbotWidget() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        // The API can return plain text or data: lines — handle both
-        const lines = chunk.split("\n");
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6);
-            if (data === "[DONE]") continue;
-            try {
-              const parsed = JSON.parse(data);
-              // Handle UIMessageStream format
-              if (parsed.type === "text-delta") {
-                accumulated += parsed.delta;
-              } else if (parsed.choices?.[0]?.delta?.content) {
-                accumulated += parsed.choices[0].delta.content;
-              }
-            } catch {
-              // If it's plain text data (not JSON), use it directly
-              if (!data.startsWith("{")) {
-                accumulated += data;
-              }
-            }
-          } else if (!line.startsWith("data:") && line.trim()) {
-            // Plain text response (toTextStreamResponse)
-            accumulated += line;
-          }
-        }
-
+        // toTextStreamResponse() sends raw text chunks — just append directly
+        accumulated += decoder.decode(value, { stream: true });
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantId ? { ...m, content: accumulated } : m

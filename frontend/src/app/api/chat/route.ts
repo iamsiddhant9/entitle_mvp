@@ -28,8 +28,8 @@ RESPONSE FORMAT RULES (follow strictly):
       messages,
     });
 
-    // Stream standard data stream format which ChatbotWidget parses
-    return result.toDataStreamResponse();
+    // Stream plain text — ChatbotWidget reads raw chunks directly
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('Error in chat route:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
