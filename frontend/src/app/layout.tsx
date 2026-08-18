@@ -15,8 +15,31 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://entitle-mvp.vercel.app"),
   title: "ENTITLE – Know Your Rights. Claim Your Benefits.",
   description: "An independent AI platform to map your profile to valid central and state welfare schemes in plain language.",
+  openGraph: {
+    title: "ENTITLE – Know Your Rights. Claim Your Benefits.",
+    description: "An independent AI platform to map your profile to valid central and state welfare schemes in plain language.",
+    url: "https://entitle-mvp.vercel.app/",
+    siteName: "ENTITLE",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ENTITLE - AI Welfare Platform",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ENTITLE – Know Your Rights. Claim Your Benefits.",
+    description: "An independent AI platform to map your profile to valid central and state welfare schemes in plain language.",
+    images: ["/og-image.png"],
+  },
 };
 
 import Script from "next/script";
