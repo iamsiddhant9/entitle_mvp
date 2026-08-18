@@ -26,6 +26,16 @@ services:
         value: "True"
       - key: GEMINI_API_KEY
         sync: false
+      - key: GEMINI_MODEL
+        value: "gemini-2.5-flash"
+      # 60s, matching the locally verified config. Render free instances are slower
+      # than a dev machine, so the 30s code default is the tighter of the two.
+      - key: GEMINI_TIMEOUT_MS
+        value: "60000"
+      # Leave blank to keep /api/health/gemini/ returning 404. Set a random value in
+      # the dashboard to enable the live Gemini self-test, then clear it again.
+      - key: HEALTHCHECK_TOKEN
+        sync: false
       - key: POLYGON_AMOY_RPC_URL
         sync: false
       - key: WALLET_PRIVATE_KEY

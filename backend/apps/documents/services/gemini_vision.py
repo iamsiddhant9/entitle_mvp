@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 from dataclasses import dataclass, field
 
@@ -149,11 +150,47 @@ def _generate(*, api_key, model, timeout_ms, prompt, image_bytes, mime_type, res
     )
 
 
+#: Length of ``Document.extraction_error``. Codes are truncated to fit so that adding
+#: detail can never turn a failed extraction into a failed *save*.
+MAX_ERROR_LENGTH = 64
+
+#: Shape guards for the only two ``APIError`` attributes that are safe to surface.
+_SAFE_HTTP_CODE = re.compile(r"^[1-5]\d{2}$")
+_SAFE_API_STATUS = re.compile(r"^[A-Z][A-Z_]{0,39}$")
+
+
+def _api_error_detail(exc: BaseException) -> str:
+    """``"_400_invalid_argument"``-style suffix for a Gemini API error, or ``""``.
+
+    Without this, every 4xx collapses into the single code ``api_client_error``, so an
+    invalid key, a referrer-restricted key, an unavailable model and an exhausted quota
+    are indistinguishable — in the API response *and* in the logs.
+
+    Only ``code`` (an HTTP status) and ``status`` (one of Google's canonical error names)
+    are read. Both are enum-like and carry no key, prompt or request content, unlike
+    ``message`` / ``details`` / ``str(exc)``, which are still never touched. Each is
+    shape-checked first: a value that does not match is simply omitted.
+    """
+    parts = []
+
+    code = getattr(exc, "code", None)
+    if _SAFE_HTTP_CODE.match(str(code)):
+        parts.append(str(code))
+
+    status = getattr(exc, "status", None)
+    if isinstance(status, str) and _SAFE_API_STATUS.match(status):
+        parts.append(status.lower())
+
+    return "_" + "_".join(parts) if parts else ""
+
+
 def _classify_exception(exc: BaseException) -> str:
     """Map an exception to a short, safe error code.
 
     Deliberately name-based: it must work even when the SDK is not importable, and it
     guarantees no third-party message text (which can carry request details) is stored.
+    API errors additionally carry the HTTP status and Google's status enum — see
+    :func:`_api_error_detail` for why those two, and only those two, are safe.
     """
     module = type(exc).__module__ or ""
     name = type(exc).__name__
@@ -162,10 +199,10 @@ def _classify_exception(exc: BaseException) -> str:
         return "sdk_unavailable"
     if module.startswith("google.genai") or module.startswith("google.api_core"):
         if name == "ClientError":
-            return "api_client_error"
+            return ("api_client_error" + _api_error_detail(exc))[:MAX_ERROR_LENGTH]
         if name == "ServerError":
-            return "api_server_error"
-        return "api_error"
+            return ("api_server_error" + _api_error_detail(exc))[:MAX_ERROR_LENGTH]
+        return ("api_error" + _api_error_detail(exc))[:MAX_ERROR_LENGTH]
     if module.startswith("httpx") or module.startswith("httpcore"):
         return "api_timeout" if "Timeout" in name else "api_network_error"
     if isinstance(exc, ValueError):

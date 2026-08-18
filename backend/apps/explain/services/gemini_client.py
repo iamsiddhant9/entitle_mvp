@@ -23,6 +23,7 @@ same rule data. The fallback is a rendering of the engine's verdict — not inve
 from __future__ import annotations
 
 import logging
+import re
 import time
 
 from django.conf import settings
@@ -97,11 +98,43 @@ def _generate(*, api_key: str, model: str, timeout_ms: int, prompt: str) -> str 
     return text.strip() if text and text.strip() else None
 
 
+#: Shape guards for the only two ``APIError`` attributes that are safe to surface.
+_SAFE_HTTP_CODE = re.compile(r"^[1-5]\d{2}$")
+_SAFE_API_STATUS = re.compile(r"^[A-Z][A-Z_]{0,39}$")
+
+
+def _api_error_detail(exc: BaseException) -> str:
+    """``"_400_invalid_argument"``-style suffix for a Gemini API error, or ``""``.
+
+    Explanations fall back silently on failure, so this log line is the only evidence that
+    the model was unreachable — and a bare ``api_client_error`` cannot distinguish an
+    invalid key from an exhausted quota.
+
+    Only ``code`` (an HTTP status) and ``status`` (one of Google's canonical error names)
+    are read; both are enum-like and carry no key or prompt text, unlike ``message`` /
+    ``details`` / ``str(exc)``. Each is shape-checked, and a value that does not match is
+    omitted. Mirrors ``apps.documents.services.gemini_vision._api_error_detail``, matching
+    how the rest of this SDK boundary is already duplicated between the two apps.
+    """
+    parts = []
+
+    code = getattr(exc, "code", None)
+    if _SAFE_HTTP_CODE.match(str(code)):
+        parts.append(str(code))
+
+    status = getattr(exc, "status", None)
+    if isinstance(status, str) and _SAFE_API_STATUS.match(status):
+        parts.append(status.lower())
+
+    return "_" + "_".join(parts) if parts else ""
+
+
 def _classify_exception(exc: BaseException) -> str:
     """Map an exception to a short, safe code.
 
     Name-based so it works even when the SDK is not importable, and so no third-party
-    message text (which can carry request details) is ever logged.
+    message text (which can carry request details) is ever logged. API errors additionally
+    carry the HTTP status and Google's status enum — see :func:`_api_error_detail`.
     """
     module = type(exc).__module__ or ""
     name = type(exc).__name__
@@ -110,10 +143,10 @@ def _classify_exception(exc: BaseException) -> str:
         return "sdk_unavailable"
     if module.startswith("google.genai") or module.startswith("google.api_core"):
         if name == "ClientError":
-            return "api_client_error"
+            return "api_client_error" + _api_error_detail(exc)
         if name == "ServerError":
-            return "api_server_error"
-        return "api_error"
+            return "api_server_error" + _api_error_detail(exc)
+        return "api_error" + _api_error_detail(exc)
     if module.startswith("httpx") or module.startswith("httpcore"):
         return "api_timeout" if "Timeout" in name else "api_network_error"
     return "unexpected_error"

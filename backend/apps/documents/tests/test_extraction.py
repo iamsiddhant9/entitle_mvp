@@ -8,6 +8,7 @@ from django.test import SimpleTestCase, override_settings
 from apps.documents.document_types import get_spec
 from apps.documents.services import gemini_vision
 from apps.documents.services.gemini_vision import ExtractionResult, extract_fields
+from google.genai.errors import ClientError, ServerError
 
 from .fixtures import (
     LEGACY_FABRICATED_VALUES,
@@ -29,8 +30,8 @@ def _extract(spec=AADHAAR) -> ExtractionResult:
     return extract_fields(image_bytes=b'fake-jpeg-bytes', mime_type='image/jpeg', spec=spec)
 
 
-class NoFabricationTests(SimpleTestCase):
-    """Every failure mode must yield empty fields — never invented values."""
+class NoFabricationAssertions:
+    """Shared with every test class that drives a failure path."""
 
     def assert_no_fabrication(self, result: ExtractionResult):
         self.assertEqual(result.fields, {})
@@ -39,6 +40,10 @@ class NoFabricationTests(SimpleTestCase):
         serialised = str(result.fields)
         for fabricated in LEGACY_FABRICATED_VALUES:
             self.assertNotIn(fabricated, serialised)
+
+
+class NoFabricationTests(NoFabricationAssertions, SimpleTestCase):
+    """Every failure mode must yield empty fields — never invented values."""
 
     @override_settings(GEMINI_API_KEY='')
     def test_missing_api_key(self):
@@ -260,3 +265,70 @@ class SuccessfulExtractionTests(SimpleTestCase):
         self.assertEqual(first, second)
         first['properties'].clear()
         self.assertNotEqual(first, AADHAAR.response_schema())
+
+
+def _api_error(cls, code, status, message='API key not valid. Please pass a valid API key.'):
+    """A real SDK error object, so the classifier is tested against the actual type."""
+    return cls(code, {'error': {'code': code, 'status': status, 'message': message}})
+
+
+class ApiErrorCodeTests(NoFabricationAssertions, SimpleTestCase):
+    """A 4xx must say *which* 4xx.
+
+    Every Gemini rejection used to collapse into the single code ``api_client_error``, which
+    cannot distinguish a rejected key from an exhausted quota — the exact ambiguity that made
+    a deployed extraction failure undiagnosable. The HTTP status and Google's status enum are
+    surfaced; the message is not.
+    """
+
+    def test_invalid_key_reports_status_and_code(self):
+        error = _api_error(ClientError, 400, 'INVALID_ARGUMENT')
+        with override_settings(GEMINI_API_KEY='real-key'), \
+                patch(PATCH_TARGET, side_effect=error):
+            result = _extract()
+        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.error, 'api_client_error_400_invalid_argument')
+        self.assert_no_fabrication(result)
+
+    def test_quota_exhausted_is_distinguishable_from_invalid_key(self):
+        error = _api_error(ClientError, 429, 'RESOURCE_EXHAUSTED', 'Quota exceeded')
+        with override_settings(GEMINI_API_KEY='real-key'), \
+                patch(PATCH_TARGET, side_effect=error):
+            result = _extract()
+        self.assertEqual(result.error, 'api_client_error_429_resource_exhausted')
+
+    def test_server_error_also_carries_detail(self):
+        error = _api_error(ServerError, 503, 'UNAVAILABLE', 'overloaded')
+        with override_settings(GEMINI_API_KEY='real-key'), \
+                patch(PATCH_TARGET, side_effect=error):
+            result = _extract()
+        self.assertEqual(result.error, 'api_server_error_503_unavailable')
+
+    def test_no_message_text_reaches_the_error_code(self):
+        """The message can carry request details, so it must never be stored."""
+        secret = 'AIzaSyTOTALLY-NOT-A-REAL-KEY'
+        error = _api_error(ClientError, 400, 'INVALID_ARGUMENT', f'key {secret} rejected')
+        with override_settings(GEMINI_API_KEY='real-key'), \
+                patch(PATCH_TARGET, side_effect=error):
+            result = _extract()
+        self.assertNotIn(secret, result.error)
+        self.assertNotIn('rejected', result.error)
+        self.assertEqual(result.error, 'api_client_error_400_invalid_argument')
+
+    def test_error_code_fits_the_database_column(self):
+        """``Document.extraction_error`` is CharField(max_length=64); overflowing it would
+        turn a failed extraction into a failed save."""
+        error = _api_error(ClientError, 400, 'A' * 200)
+        with override_settings(GEMINI_API_KEY='real-key'), \
+                patch(PATCH_TARGET, side_effect=error):
+            result = _extract()
+        self.assertLessEqual(len(result.error), gemini_vision.MAX_ERROR_LENGTH)
+        # An unrecognised status shape is dropped rather than truncated into nonsense.
+        self.assertEqual(result.error, 'api_client_error_400')
+
+    def test_error_without_usable_attributes_keeps_the_bare_code(self):
+        error = ClientError(0, {})
+        with override_settings(GEMINI_API_KEY='real-key'), \
+                patch(PATCH_TARGET, side_effect=error):
+            result = _extract()
+        self.assertEqual(result.error, 'api_client_error')
