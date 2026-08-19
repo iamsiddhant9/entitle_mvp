@@ -128,15 +128,15 @@ function ProfilePageInner() {
             </div>
 
             <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-              <ProfileItem icon={<User />} label="Full Name" value={profile.full_name || "Not provided (Scan Aadhaar)"} />
-              <ProfileItem icon={<User />} label="Age" value={profile.age ? `${profile.age} years` : "Not provided"} />
-              <ProfileItem icon={<Users />} label="Gender" value={profile.gender ? capitalize(profile.gender) : "Not provided"} />
-              <ProfileItem icon={<MapPin />} label="State" value={profile.state || "Not provided"} />
-              <ProfileItem icon={<Hash />} label="Caste Category" value={profile.caste ? profile.caste.toUpperCase() : "Not provided"} />
-              <ProfileItem icon={<Briefcase />} label="Occupation" value={profile.occupation ? capitalize(profile.occupation.replace('_', ' ')) : "Not provided"} />
-              <ProfileItem icon={<IndianRupee />} label="Annual Income" value={profile.income !== null ? `₹${profile.income.toLocaleString()}` : "Not provided"} />
-              <ProfileItem icon={<Activity />} label="Disability" value={profile.disability !== null ? (profile.disability ? "Yes" : "No") : "Not provided"} />
-              <ProfileItem icon={<ShieldCheck />} label="Land Owned" value={profile.land_owned !== null ? (profile.land_owned ? "Yes" : "No") : "Not provided"} />
+              <ProfileItem icon={<User />} label="Full Name" value={profile.full_name ? profile.full_name : "Not provided (Scan Aadhaar)"} required isMissing={!profile.full_name} />
+              <ProfileItem icon={<User />} label="Age" value={profile.age ? `${profile.age} years` : "Not provided"} required isMissing={!profile.age} />
+              <ProfileItem icon={<Users />} label="Gender" value={profile.gender ? capitalize(profile.gender) : "Not provided"} required isMissing={!profile.gender} />
+              <ProfileItem icon={<MapPin />} label="State" value={profile.state ? profile.state : "Not provided"} required isMissing={!profile.state} />
+              <ProfileItem icon={<Hash />} label="Caste Category" value={profile.caste ? profile.caste.toUpperCase() : "Not provided"} required isMissing={!profile.caste} />
+              <ProfileItem icon={<Briefcase />} label="Occupation" value={profile.occupation ? capitalize(profile.occupation.replace('_', ' ')) : "Not provided"} required isMissing={!profile.occupation} />
+              <ProfileItem icon={<IndianRupee />} label="Annual Income" value={profile.income !== null ? `₹${profile.income.toLocaleString()}` : "Not provided"} required isMissing={profile.income === null} />
+              <ProfileItem icon={<Activity />} label="Disability" value={profile.disability !== null ? (profile.disability ? "Yes" : "No") : "Not provided"} isMissing={profile.disability === null} />
+              <ProfileItem icon={<ShieldCheck />} label="Land Owned" value={profile.land_owned !== null ? (profile.land_owned ? "Yes" : "No") : "Not provided"} isMissing={profile.land_owned === null} />
             </div>
 
             <div className="bg-[#EEF3FF] px-8 py-4 border-t border-[#E2E8F0] flex items-center justify-between">
@@ -154,15 +154,20 @@ function ProfilePageInner() {
   );
 }
 
-function ProfileItem({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
+function ProfileItem({ icon, label, value, required, isMissing }: { icon: React.ReactNode, label: string, value: string, required?: boolean, isMissing?: boolean }) {
   return (
     <div className="flex items-start gap-4">
       <div className="w-10 h-10 rounded-sm bg-[#F1F5F9] text-[#64748B] flex items-center justify-center shrink-0">
         {icon}
       </div>
       <div>
-        <p className="text-[11px] font-semibold tracking-widest uppercase text-[#64748B] mb-1">{label}</p>
-        <p className="font-semibold text-[#0F172A] text-base">{value}</p>
+        <div className="flex items-center gap-2 mb-1">
+          <p className="text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">{label}</p>
+          {required && isMissing && (
+             <span className="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">REQUIRED</span>
+          )}
+        </div>
+        <p className={`font-semibold text-base ${isMissing ? (required ? "text-red-500" : "text-[#94A3B8]") : "text-[#0F172A]"}`}>{value}</p>
       </div>
     </div>
   );
