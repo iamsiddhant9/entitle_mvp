@@ -143,14 +143,14 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # API Keys and Services Configuration
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 POLYGON_AMOY_RPC_URL = os.environ.get('POLYGON_AMOY_RPC_URL', 'https://rpc-amoy.polygon.technology')
 WALLET_PRIVATE_KEY = os.environ.get('WALLET_PRIVATE_KEY', '')
 ELIGIBILITY_REGISTRY_ADDRESS = os.environ.get('ELIGIBILITY_REGISTRY_ADDRESS', '')
 
 # Gemini model configuration (shared by document extraction).
-GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.5-flash')
-GEMINI_TIMEOUT_MS = int(os.environ.get('GEMINI_TIMEOUT_MS', '30000'))
+GROQ_MODEL = os.environ.get('GROQ_MODEL', 'llama-3.3-70b-versatile')
+GROQ_TIMEOUT_MS = int(os.environ.get('GROQ_TIMEOUT_MS', '30000'))
 
 # Document upload / OCR pipeline limits.
 #   MAX_UPLOAD_BYTES  - 10 MiB: fits a high-resolution phone photo of a certificate

@@ -17,7 +17,7 @@ from datetime import date
 
 from ..document_types import DocumentTypeSpec
 from . import expiry as expiry_service
-from . import gemini_vision, preprocessing
+from . import groq_vision, preprocessing
 from .file_validation import ValidatedUpload, validate_upload
 from .quality import QualityResult, assess_image_quality
 
@@ -30,7 +30,7 @@ class DocumentProcessingResult:
 
     upload: ValidatedUpload
     quality: QualityResult
-    extraction: gemini_vision.ExtractionResult
+    extraction: groq_vision.ExtractionResult
     expiry_status: str
     expiry_date: date | None
 
@@ -61,14 +61,14 @@ def process_document(uploaded_file, spec: DocumentTypeSpec) -> DocumentProcessin
             quality.status,
             quality.laplacian_variance,
         )
-        extraction = gemini_vision.ExtractionResult(
-            status=gemini_vision.STATUS_SKIPPED_LOW_QUALITY,
-            source=gemini_vision.SOURCE_NONE,
+        extraction = groq_vision.ExtractionResult(
+            status=groq_vision.STATUS_SKIPPED_LOW_QUALITY,
+            source=groq_vision.SOURCE_NONE,
             error="image_too_blurry",
         )
     else:
         image_bytes, mime_type = preprocessing.prepare_for_extraction(upload.data)
-        extraction = gemini_vision.extract_fields(
+        extraction = groq_vision.extract_fields(
             image_bytes=image_bytes,
             mime_type=mime_type,
             spec=spec,

@@ -29,7 +29,7 @@ services:
       - DEBUG=True
       - SECRET_KEY=django-insecure-key-change-in-prod
       - DATABASE_URL=postgres://postgres:password@db:5432/entitle
-      - GEMINI_API_KEY=AIzaSyAyGCSjt-6gaKghVRa1ORc9zVSKJWAOuVc
+      - GROQ_API_KEY=AIzaSyAyGCSjt-6gaKghVRa1ORc9zVSKJWAOuVc
       - POLYGON_AMOY_RPC_URL=https://rpc-amoy.polygon.technology
       - WALLET_PRIVATE_KEY=0x6608bb5cdc9e5a7b59326dd7701c209024101df5af6a11139e2096ac816ba2a4
       - ELIGIBILITY_REGISTRY_ADDRESS=0x0000000000000000000000000000000000000000

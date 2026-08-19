@@ -7,7 +7,7 @@ from apps.citizens.models import CitizenProfile
 
 from .services.expiry import EXPIRY_STATUS_CHOICES, STATUS_NOT_APPLICABLE
 from .services.file_validation import ALLOWED_EXTENSIONS
-from .services.gemini_vision import (
+from .services.groq_vision import (
     EXTRACTION_SOURCE_CHOICES,
     EXTRACTION_STATUS_CHOICES,
     SOURCE_NONE,

@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='document',
             name='extraction_source',
-            field=models.CharField(choices=[('none', 'No extracted data'), ('gemini_vision', 'Gemini Vision'), ('human', 'Human confirmed')], default='none', max_length=32),
+            field=models.CharField(choices=[('none', 'No extracted data'), ('groq_vision', 'Gemini Vision'), ('human', 'Human confirmed')], default='none', max_length=32),
         ),
         migrations.AddField(
             model_name='document',

@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.http import JsonResponse
 from apps.explain.views import KnowledgeAskView
-from apps.documents.services.gemini_vision import is_configured, get_api_key
+from apps.documents.services.groq_vision import is_configured, get_api_key
 
 def health_check(request):
     key = get_api_key()
@@ -12,7 +12,7 @@ def health_check(request):
         "status": "ok",
         "gemini_configured": is_configured(),
         "gemini_key_prefix": key[:10] + "..." if key else "NOT SET",
-        "gemini_model": getattr(settings, "GEMINI_MODEL", "not set"),
+        "gemini_model": getattr(settings, "GROQ_MODEL", "not set"),
     })
 
 urlpatterns = [

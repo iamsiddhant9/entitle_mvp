@@ -7,7 +7,7 @@ from apps.eligibility.models import EligibilityResult
 from apps.schemes.models import Scheme
 
 from .exceptions import PERMISSION_DENIED, ExplainAPIError
-from .services.gemini_client import answer_knowledge_query, explain_eligibility
+from .services.groq_client import answer_knowledge_query, explain_eligibility
 
 #: Official portal used when ENTITLE has no record of the scheme being asked about.
 GENERAL_SCHEMES_PORTAL = "https://www.india.gov.in/my-government/schemes"

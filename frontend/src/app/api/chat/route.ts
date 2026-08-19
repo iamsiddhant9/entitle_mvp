@@ -21,10 +21,12 @@ RESPONSE FORMAT RULES (follow strictly):
 - Break every answer into short, simple bullet points.
 - Use simple, everyday language. Avoid technical or legal jargon.
 - Keep each bullet point to 1-2 short sentences maximum.
-- Use emojis where helpful to make it friendly and easy to read.
+- Maintain a professional, clear, and objective tone. Do not be overly enthusiastic or conversational.
+- CRITICAL: DO NOT use any emojis.
 - If listing steps, use numbered lists (1. 2. 3.).
 - Always end with a helpful follow-up question or next step.
-- Think of the user as someone reading this for the first time with no prior knowledge.`,
+- Think of the user as someone reading this for the first time with no prior knowledge.
+- CRITICAL: DO NOT output any internal thought processes, reasoning, or <think> tags. Produce ONLY the final response.`,
   };
 
   const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -38,7 +40,7 @@ RESPONSE FORMAT RULES (follow strictly):
       messages: [systemMessage, ...messages],
       stream: true,
       temperature: 0.7,
-      max_tokens: 1024,
+      max_tokens: 4096,
     }),
   });
 
@@ -55,9 +57,17 @@ RESPONSE FORMAT RULES (follow strictly):
   const stream = new ReadableStream({
     async start(controller) {
       const reader = groqResponse.body!.getReader();
+      let finishedThinking = false;
+      let thinkBuffer = '';
+
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          if (!finishedThinking && thinkBuffer && !thinkBuffer.includes('<think>')) {
+             controller.enqueue(encoder.encode(thinkBuffer));
+          }
+          break;
+        }
 
         const chunk = decoder.decode(value, { stream: true });
         const lines = chunk.split('\n').filter(l => l.startsWith('data: '));
@@ -69,7 +79,22 @@ RESPONSE FORMAT RULES (follow strictly):
             const parsed = JSON.parse(data);
             const text = parsed.choices?.[0]?.delta?.content;
             if (text) {
-              controller.enqueue(encoder.encode(text));
+              if (!finishedThinking) {
+                thinkBuffer += text;
+                if (thinkBuffer.includes('</think>')) {
+                  finishedThinking = true;
+                  const cleanText = thinkBuffer.split('</think>')[1];
+                  if (cleanText) {
+                    controller.enqueue(encoder.encode(cleanText.replace(/^[\n\r]+/, '')));
+                  }
+                } else if (!thinkBuffer.includes('<') && thinkBuffer.length > 20) {
+                  // No think block detected at all
+                  finishedThinking = true;
+                  controller.enqueue(encoder.encode(thinkBuffer));
+                }
+              } else {
+                controller.enqueue(encoder.encode(text));
+              }
             }
           } catch {
             // skip malformed chunks

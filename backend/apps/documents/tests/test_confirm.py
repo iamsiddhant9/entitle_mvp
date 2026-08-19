@@ -7,7 +7,7 @@ from rest_framework import status
 
 from apps.citizens.models import CitizenProfile
 from apps.documents.models import Document
-from apps.documents.services import gemini_vision
+from apps.documents.services import groq_vision
 
 from .fixtures import (
     SAMPLE_AADHAAR_PAYLOAD,
@@ -19,7 +19,7 @@ from .fixtures import (
 )
 
 UPLOAD_URL = '/api/documents/upload/'
-PATCH_TARGET = 'apps.documents.services.gemini_vision._generate'
+PATCH_TARGET = 'apps.documents.services.groq_vision._generate'
 
 
 def confirm_url(document_id):
@@ -73,10 +73,10 @@ class ConfirmationTests(DocumentTestCase):
         document = Document.objects.get(id=document_id)
         self.assertTrue(document.confirmed)
         self.assertIsNotNone(document.confirmed_at)
-        self.assertEqual(document.extraction_source, gemini_vision.SOURCE_HUMAN)
+        self.assertEqual(document.extraction_source, groq_vision.SOURCE_HUMAN)
 
     def test_confirming_without_editing_keeps_extraction_source(self):
-        with override_settings(GEMINI_API_KEY='real-key'):
+        with override_settings(GROQ_API_KEY='real-key'):
             with patch(PATCH_TARGET, return_value=FakeResponse(parsed=dict(SAMPLE_AADHAAR_PAYLOAD))):
                 document_id = self._upload()
 
@@ -87,7 +87,7 @@ class ConfirmationTests(DocumentTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         document = Document.objects.get(id=document_id)
-        self.assertEqual(document.extraction_source, gemini_vision.SOURCE_GEMINI)
+        self.assertEqual(document.extraction_source, groq_vision.SOURCE_GROQ)
         self.assertTrue(document.confirmed)
 
     # --- Ownership ---

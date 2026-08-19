@@ -1,6 +1,6 @@
 """The /api/explain/ and /api/knowledge/ask/ endpoints.
 
-Every test pins GEMINI_API_KEY so behaviour does not depend on the developer's environment
+Every test pins GROQ_API_KEY so behaviour does not depend on the developer's environment
 and no test can reach the network. The Gemini path is exercised by patching the `_generate`
 seam; live model behaviour is a separate manual check requiring a real key.
 """
@@ -18,10 +18,10 @@ from apps.schemes.models import Scheme
 
 EXPLAIN_URL = '/api/explain/'
 ASK_URL = '/api/knowledge/ask/'
-GENERATE = 'apps.explain.services.gemini_client._generate'
+GENERATE = 'apps.explain.services.groq_client._generate'
 
 
-@override_settings(GEMINI_API_KEY='')
+@override_settings(GROQ_API_KEY='')
 class ExplainEndpointTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -150,7 +150,7 @@ class ExplainEndpointTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
 
-@override_settings(GEMINI_API_KEY='')
+@override_settings(GROQ_API_KEY='')
 class KnowledgeEndpointTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -226,13 +226,13 @@ class GeminiPathTests(TestCase):
             format='json',
         )
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_model_text_is_returned_when_available(self):
         with patch(GENERATE, return_value="You qualify because you farm your own land."):
             res = self._post()
         self.assertEqual(res.data['explanation'], "You qualify because you farm your own land.")
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_model_failure_falls_back_without_error(self):
         with patch(GENERATE, side_effect=RuntimeError("upstream down")):
             res = self._post()
@@ -240,26 +240,26 @@ class GeminiPathTests(TestCase):
         self.assertIn("eligible", res.data['explanation'].lower())
         self.assertNotIn("lte", res.data['explanation'])
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_empty_model_response_falls_back(self):
         with patch(GENERATE, return_value=None):
             res = self._post()
         self.assertTrue(len(res.data['explanation']) > 20)
 
-    @override_settings(GEMINI_API_KEY='')
+    @override_settings(GROQ_API_KEY='')
     def test_no_key_uses_the_fallback_without_calling_the_model(self):
         with patch(GENERATE) as mock_generate:
             res = self._post()
         mock_generate.assert_not_called()
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    @override_settings(GEMINI_API_KEY='your-gemini-api-key')
+    @override_settings(GROQ_API_KEY='your-groq-api-key')
     def test_placeholder_key_is_treated_as_unconfigured(self):
         with patch(GENERATE) as mock_generate:
             self._post()
         mock_generate.assert_not_called()
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_knowledge_assistant_can_reach_the_model(self):
         """The legacy SDK was never installed, so this path was previously dead."""
         with patch(GENERATE, return_value="Farmers receive Rs 6000 per year.") as mock_generate:
@@ -271,7 +271,7 @@ class GeminiPathTests(TestCase):
         mock_generate.assert_called_once()
         self.assertEqual(res.data['answer'], "Farmers receive Rs 6000 per year.")
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_unknown_scheme_never_reaches_the_model(self):
         with patch(GENERATE) as mock_generate:
             self.client.post(
@@ -281,7 +281,7 @@ class GeminiPathTests(TestCase):
             )
         mock_generate.assert_not_called()
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_model_is_configured_from_settings(self):
         captured = {}
 
@@ -289,9 +289,9 @@ class GeminiPathTests(TestCase):
             captured.update(model=model, timeout_ms=timeout_ms)
             return "ok"
 
-        with override_settings(GEMINI_MODEL='gemini-2.5-flash', GEMINI_TIMEOUT_MS=12345):
+        with override_settings(GROQ_MODEL='llama-3.3-70b-versatile', GROQ_TIMEOUT_MS=12345):
             with patch(GENERATE, fake):
                 self._post()
 
-        self.assertEqual(captured['model'], 'gemini-2.5-flash')
+        self.assertEqual(captured['model'], 'llama-3.3-70b-versatile')
         self.assertEqual(captured['timeout_ms'], 12345)

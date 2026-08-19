@@ -30,7 +30,7 @@ from .exceptions import (
 from .models import Document
 from .serializers import DocumentConfirmSerializer, DocumentUploadSerializer
 from .services import expiry as expiry_service
-from .services import gemini_vision, profile_mapping
+from .services import groq_vision, profile_mapping
 from .services.digilocker_client import DigiLockerClient
 from .services.normalization import normalise_fields, normalise_freeform_fields
 from .services.ocr import process_document
@@ -212,7 +212,7 @@ class DocumentConfirmView(APIView):
                 else:
                     document.extracted_fields = normalise_freeform_fields(submitted)
                 # The values now on record are the citizen's, not the model's.
-                document.extraction_source = gemini_vision.SOURCE_HUMAN
+                document.extraction_source = groq_vision.SOURCE_HUMAN
 
             expiry_status, expiry_date = expiry_service.evaluate_expiry(
                 spec, document.extracted_fields

@@ -6,8 +6,8 @@ from unittest.mock import patch
 from django.test import SimpleTestCase, override_settings
 
 from apps.documents.document_types import get_spec
-from apps.documents.services import gemini_vision
-from apps.documents.services.gemini_vision import ExtractionResult, extract_fields
+from apps.documents.services import groq_vision
+from apps.documents.services.groq_vision import ExtractionResult, extract_fields
 
 from .fixtures import (
     LEGACY_FABRICATED_VALUES,
@@ -22,7 +22,7 @@ AADHAAR = get_spec('aadhaar_card')
 INCOME = get_spec('income_certificate')
 PASSBOOK = get_spec('bank_passbook')
 
-PATCH_TARGET = 'apps.documents.services.gemini_vision._generate'
+PATCH_TARGET = 'apps.documents.services.groq_vision._generate'
 
 
 def _extract(spec=AADHAAR) -> ExtractionResult:
@@ -34,135 +34,135 @@ class NoFabricationTests(SimpleTestCase):
 
     def assert_no_fabrication(self, result: ExtractionResult):
         self.assertEqual(result.fields, {})
-        self.assertNotEqual(result.status, gemini_vision.STATUS_SUCCESS)
-        self.assertEqual(result.source, gemini_vision.SOURCE_NONE)
+        self.assertNotEqual(result.status, groq_vision.STATUS_SUCCESS)
+        self.assertEqual(result.source, groq_vision.SOURCE_NONE)
         serialised = str(result.fields)
         for fabricated in LEGACY_FABRICATED_VALUES:
             self.assertNotIn(fabricated, serialised)
 
-    @override_settings(GEMINI_API_KEY='')
+    @override_settings(GROQ_API_KEY='')
     def test_missing_api_key(self):
         result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_NOT_CONFIGURED)
+        self.assertEqual(result.status, groq_vision.STATUS_NOT_CONFIGURED)
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='your-gemini-api-key')
+    @override_settings(GROQ_API_KEY='your-groq-api-key')
     def test_placeholder_api_key_is_treated_as_unconfigured(self):
         """The placeholder shipped in .env.example and docker-compose.yml."""
         result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_NOT_CONFIGURED)
+        self.assertEqual(result.status, groq_vision.STATUS_NOT_CONFIGURED)
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='your_gemini_key_here')
+    @override_settings(GROQ_API_KEY='your_groq_key_here')
     def test_docker_placeholder_api_key_is_treated_as_unconfigured(self):
         result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_NOT_CONFIGURED)
+        self.assertEqual(result.status, groq_vision.STATUS_NOT_CONFIGURED)
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_api_exception(self):
         with patch(PATCH_TARGET, side_effect=RuntimeError('upstream exploded')):
             result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_sdk_import_failure(self):
         with patch(PATCH_TARGET, side_effect=ImportError('no module named google')):
             result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assertEqual(result.error, 'sdk_unavailable')
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_malformed_json(self):
         with patch(PATCH_TARGET, return_value=FakeResponse(text='{"name": "Rekha"')):
             result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assertEqual(result.error, 'invalid_json')
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_non_object_json_array(self):
         with patch(PATCH_TARGET, return_value=FakeResponse(text='["a", "b"]')):
             result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assertEqual(result.error, 'non_object_response')
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_non_object_json_scalar(self):
         with patch(PATCH_TARGET, return_value=FakeResponse(text='42')):
             result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assertEqual(result.error, 'non_object_response')
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_null_json(self):
         with patch(PATCH_TARGET, return_value=FakeResponse(text='null')):
             result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_empty_response(self):
         with patch(PATCH_TARGET, return_value=FakeResponse(text=None)):
             result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assertEqual(result.error, 'empty_response')
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_safety_block(self):
         with patch(PATCH_TARGET, return_value=FakeResponse(block_reason='SAFETY')):
             result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assertEqual(result.error, 'blocked_by_safety')
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_no_candidates(self):
         with patch(PATCH_TARGET, return_value=FakeResponseNoCandidates()):
             result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assertEqual(result.error, 'no_candidates')
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_truncated_response(self):
         with patch(PATCH_TARGET, return_value=FakeResponse(text='{}', finish_reason='MAX_TOKENS')):
             result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assertEqual(result.error, 'response_truncated')
         self.assert_no_fabrication(result)
 
-    @override_settings(GEMINI_API_KEY='real-key')
+    @override_settings(GROQ_API_KEY='real-key')
     def test_all_null_payload_is_not_success(self):
         """A call that returns only nulls found nothing; reporting success would
         present an empty result as a verified reading."""
         payload = {name: None for name in AADHAAR.field_names}
         with patch(PATCH_TARGET, return_value=FakeResponse(parsed=payload)):
             result = _extract()
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assertEqual(result.error, 'no_fields_extracted')
         self.assert_no_fabrication(result)
 
     def test_document_type_without_schema(self):
         result = _extract(spec=PASSBOOK)
-        self.assertEqual(result.status, gemini_vision.STATUS_UNSUPPORTED_DOC_TYPE)
+        self.assertEqual(result.status, groq_vision.STATUS_UNSUPPORTED_DOC_TYPE)
         self.assert_no_fabrication(result)
 
 
-@override_settings(GEMINI_API_KEY='real-key')
+@override_settings(GROQ_API_KEY='real-key')
 class SuccessfulExtractionTests(SimpleTestCase):
     def test_success_returns_normalised_fields_and_provenance(self):
         with patch(PATCH_TARGET, return_value=FakeResponse(parsed=dict(SAMPLE_AADHAAR_PAYLOAD))):
             result = _extract()
 
-        self.assertEqual(result.status, gemini_vision.STATUS_SUCCESS)
-        self.assertEqual(result.source, gemini_vision.SOURCE_GEMINI)
-        self.assertEqual(result.model, gemini_vision.get_model_name())
+        self.assertEqual(result.status, groq_vision.STATUS_SUCCESS)
+        self.assertEqual(result.source, groq_vision.SOURCE_GROQ)
+        self.assertEqual(result.model, groq_vision.get_model_name())
         self.assertEqual(result.fields['name'], 'Rekha Devi Sharma')
         self.assertEqual(result.fields['dob'], '12/07/1988')
 
@@ -180,7 +180,7 @@ class SuccessfulExtractionTests(SimpleTestCase):
             return_value=FakeResponse(text=json.dumps(SAMPLE_INCOME_PAYLOAD)),
         ):
             result = _extract(spec=INCOME)
-        self.assertEqual(result.status, gemini_vision.STATUS_SUCCESS)
+        self.assertEqual(result.status, groq_vision.STATUS_SUCCESS)
         self.assertEqual(result.fields['annual_income'], SAMPLE_INCOME_PAYLOAD['annual_income'])
 
     def test_key_aliases_are_normalised(self):
@@ -231,7 +231,7 @@ class SuccessfulExtractionTests(SimpleTestCase):
             _extract()
         kwargs = mock.call_args.kwargs
         self.assertEqual(kwargs['mime_type'], 'image/jpeg')
-        self.assertEqual(kwargs['model'], gemini_vision.get_model_name())
+        self.assertEqual(kwargs['model'], groq_vision.get_model_name())
         schema = kwargs['response_schema']
         self.assertEqual(schema['type'], 'object')
         self.assertEqual(set(schema['properties']), set(AADHAAR.field_names))
@@ -241,7 +241,7 @@ class SuccessfulExtractionTests(SimpleTestCase):
     def test_land_document_schema_normalises(self):
         with patch(PATCH_TARGET, return_value=FakeResponse(parsed=dict(SAMPLE_LAND_PAYLOAD))):
             result = _extract(spec=get_spec('land_ownership_document'))
-        self.assertEqual(result.status, gemini_vision.STATUS_SUCCESS)
+        self.assertEqual(result.status, groq_vision.STATUS_SUCCESS)
         self.assertEqual(result.fields['owner_name'], 'Rekha Devi Sharma')
         self.assertEqual(result.fields['khasra_no'], '778/3')
 

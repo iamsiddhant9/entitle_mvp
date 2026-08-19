@@ -6,7 +6,7 @@ always. It must be genuinely useful and must never leak rule-engine syntax.
 
 from django.test import SimpleTestCase
 
-from apps.explain.services.gemini_client import _get_fallback_explanation
+from apps.explain.services.groq_client import _get_fallback_explanation
 
 #: Substrings that would mean engine internals reached a citizen.
 FORBIDDEN = ("lte", "gte", "neq", "'field'", "'op'", "'value'", "requires", "{", "}", "[", "]")

@@ -6,7 +6,7 @@ API key. Live model behaviour is a separate, manual check that needs a real key.
 
 from django.test import SimpleTestCase
 
-from apps.explain.services.gemini_client import (
+from apps.explain.services.groq_client import (
     build_explanation_prompt,
     build_knowledge_prompt,
 )
@@ -99,7 +99,7 @@ class ProfilePrivacyTests(SimpleTestCase):
 
         from django.test import override_settings
 
-        from apps.explain.services import gemini_client
+        from apps.explain.services import groq_client
 
         captured = {}
 
@@ -107,9 +107,9 @@ class ProfilePrivacyTests(SimpleTestCase):
             captured['prompt'] = prompt
             return "ok"
 
-        with override_settings(GEMINI_API_KEY='real-key'):
-            with patch.object(gemini_client, '_generate', fake_generate):
-                gemini_client.explain_eligibility(
+        with override_settings(GROQ_API_KEY='real-key'):
+            with patch.object(groq_client, '_generate', fake_generate):
+                groq_client.explain_eligibility(
                     scheme_name="PM Kisan",
                     scheme_description="desc",
                     status="eligible",

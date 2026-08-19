@@ -5,7 +5,7 @@ from rest_framework import status
 
 from apps.citizens.models import CitizenProfile
 from apps.documents.models import Document
-from apps.documents.services import gemini_vision
+from apps.documents.services import groq_vision
 
 from .fixtures import (
     DocumentTestCase,
@@ -60,15 +60,15 @@ class DocumentUploadTests(DocumentTestCase):
     def test_missing_api_key_reports_not_configured_with_no_data(self):
         """The critical guarantee: no key means no data, never fabricated data."""
         response = self._post()
-        self.assertEqual(response.data['extraction_status'], gemini_vision.STATUS_NOT_CONFIGURED)
+        self.assertEqual(response.data['extraction_status'], groq_vision.STATUS_NOT_CONFIGURED)
         self.assertEqual(response.data['extracted_fields'], {})
-        self.assertEqual(response.data['extraction_source'], gemini_vision.SOURCE_NONE)
+        self.assertEqual(response.data['extraction_source'], groq_vision.SOURCE_NONE)
 
     def test_document_type_without_schema_is_accepted_but_not_extracted(self):
         response = self._post(doc_type='bank_passbook')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            response.data['extraction_status'], gemini_vision.STATUS_UNSUPPORTED_DOC_TYPE
+            response.data['extraction_status'], groq_vision.STATUS_UNSUPPORTED_DOC_TYPE
         )
         self.assertEqual(response.data['extracted_fields'], {})
 
@@ -207,7 +207,7 @@ class BlurryUploadTests(DocumentTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(response.data['is_blurry'])
         self.assertEqual(
-            response.data['extraction_status'], gemini_vision.STATUS_SKIPPED_LOW_QUALITY
+            response.data['extraction_status'], groq_vision.STATUS_SKIPPED_LOW_QUALITY
         )
         self.assertEqual(response.data['extracted_fields'], {})
 

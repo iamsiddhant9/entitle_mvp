@@ -23,7 +23,7 @@ class DocumentTestCase(TestCase):
     """Base case that isolates media storage and disables live Gemini calls.
 
     Without the MEDIA_ROOT override, uploads in tests are written into the real
-    ``backend/media/`` directory and left behind. Without the empty GEMINI_API_KEY, a
+    ``backend/media/`` directory and left behind. Without the empty GROQ_API_KEY, a
     developer with a real key in their environment would make the suite hit the network.
     """
 
@@ -32,7 +32,7 @@ class DocumentTestCase(TestCase):
         cls._media_root = tempfile.mkdtemp(prefix="entitle-test-media-")
         cls._settings_override = override_settings(
             MEDIA_ROOT=cls._media_root,
-            GEMINI_API_KEY="",
+            GROQ_API_KEY="",
         )
         cls._settings_override.enable()
         super().setUpClass()
@@ -137,22 +137,23 @@ def upload_file(data: bytes, name: str = "document.jpg", content_type: str = "im
 # --- Fake Gemini responses -----------------------------------------------------------
 
 
-class FakeResponse:
-    """Mimics the parts of ``GenerateContentResponse`` the extractor reads."""
+def FakeResponse(*, parsed=None, text=None, block_reason=None, finish_reason=None):
+    if block_reason:
+        return {"choices": [{"finish_reason": block_reason}]}
+    if text is None and parsed:
+        import json
+        text = json.dumps(parsed)
+    return {
+        "choices": [
+            {
+                "message": {"content": text},
+                "finish_reason": finish_reason or "stop"
+            }
+        ]
+    }
 
-    def __init__(self, *, parsed=None, text=None, block_reason=None, finish_reason=None):
-        self.parsed = parsed
-        self.text = text
-        self.prompt_feedback = SimpleNamespace(block_reason=block_reason)
-        self.candidates = [SimpleNamespace(finish_reason=finish_reason)]
-
-
-class FakeResponseNoCandidates:
-    def __init__(self):
-        self.parsed = None
-        self.text = None
-        self.prompt_feedback = SimpleNamespace(block_reason=None)
-        self.candidates = []
+def FakeResponseNoCandidates():
+    return {"choices": []}
 
 
 #: Sample model output. TEST-ONLY — never a production fallback.

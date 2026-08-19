@@ -17,7 +17,7 @@ from rest_framework import status
 from apps.citizens.models import CitizenProfile
 from apps.documents.document_types import get_spec
 from apps.documents.models import Document
-from apps.documents.services import gemini_vision
+from apps.documents.services import groq_vision
 from apps.documents.services.normalization import (
     mask_aadhaar_like,
     mask_identifier,
@@ -36,7 +36,7 @@ from .fixtures import (
 )
 
 AADHAAR = get_spec('aadhaar_card')
-PATCH_TARGET = 'apps.documents.services.gemini_vision._generate'
+PATCH_TARGET = 'apps.documents.services.groq_vision._generate'
 UPLOAD_URL = '/api/documents/upload/'
 
 FULL_AADHAAR = "4321 8765 2109"
@@ -141,7 +141,7 @@ class AadhaarMaskingTests(SimpleTestCase):
             self.assertEqual(fields['linked_id'], "XXXX-XXXX-2109", f"{form!r} leaked")
 
 
-@override_settings(GEMINI_API_KEY='real-key')
+@override_settings(GROQ_API_KEY='real-key')
 class ExtractionSuccessGateTests(SimpleTestCase):
     def test_unreadable_identifier_does_not_count_as_a_successful_extraction(self):
         payload = {
@@ -152,10 +152,10 @@ class ExtractionSuccessGateTests(SimpleTestCase):
             "state": "Bihar",
         }
         with patch(PATCH_TARGET, return_value=FakeResponse(parsed=payload)):
-            result = gemini_vision.extract_fields(
+            result = groq_vision.extract_fields(
                 image_bytes=b'x', mime_type='image/jpeg', spec=AADHAAR
             )
-        self.assertEqual(result.status, gemini_vision.STATUS_FAILED)
+        self.assertEqual(result.status, groq_vision.STATUS_FAILED)
         self.assertEqual(result.error, 'no_fields_extracted')
         self.assertEqual(result.fields, {})
 
