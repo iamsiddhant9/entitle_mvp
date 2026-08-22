@@ -104,6 +104,8 @@ export default function MinistryWheel() {
           );
         })}
       </div>
+      {/* Bottom Fade Overlay to soften the diameter cut-off */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#F3F4F6] to-transparent z-20 pointer-events-none" />
       
       {/* Central Premium Hub */}
       <div className="absolute bottom-[-1px] left-1/2 -translate-x-1/2 bg-white/70 backdrop-blur-xl px-12 py-6 rounded-t-[40px] border-t border-x border-white/80 shadow-[0_-15px_40px_rgba(11,60,200,0.06)] flex flex-col items-center z-30 w-[280px]">
