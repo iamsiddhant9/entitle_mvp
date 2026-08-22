@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { User } from "lucide-react";
 import { useCitizen } from "@/context/CitizenProfileContext";
 
 interface Props {
-  title?: string;
   subtitle?: string;
 }
 
-export default function CitizenHeader({ title = "ENTITLE", subtitle = "Welfare Entitlement Assistance" }: Props) {
+export default function CitizenHeader({ subtitle = "Welfare Entitlement Assistance · Citizen Services" }: Props) {
   const { citizenId, profile } = useCitizen();
 
   const getDisplayName = () => {
@@ -20,12 +20,18 @@ export default function CitizenHeader({ title = "ENTITLE", subtitle = "Welfare E
 
   return (
     <header className="bg-white border-b border-[#E2E8F0]">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-4 hover:opacity-90 transition-opacity">
-          <div className="w-11 h-11 border-2 flex items-center justify-center font-bold text-xl rounded-sm shadow-sm" style={{ borderColor: "#0B3CC8", color: "#0B3CC8" }}>E</div>
-          <div>
-            <div className="text-xl font-bold tracking-tight" style={{ color: "#0B3CC8" }}>{title}</div>
-            <div className="text-[11px] text-[#64748B] mt-0.5 font-medium hidden sm:block">{subtitle}</div>
+      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+          <Image
+            src="/entitle-logo.jpg"
+            alt="ENTITLE"
+            width={160}
+            height={52}
+            className="h-11 w-auto object-contain"
+            priority
+          />
+          <div className="text-[11px] text-[#64748B] font-medium hidden lg:block border-l border-[#E2E8F0] pl-3">
+            {subtitle}
           </div>
         </Link>
         <Link href="/profile" className="flex items-center gap-3 group">

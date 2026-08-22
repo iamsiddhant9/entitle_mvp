@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export const maxDuration = 30;
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   const apiKey = process.env.GROQ_API_KEY;
@@ -57,14 +57,21 @@ RESPONSE FORMAT RULES (follow strictly):
   const stream = new ReadableStream({
     async start(controller) {
       const reader = groqResponse.body!.getReader();
-      let finishedThinking = false;
-      let thinkBuffer = '';
+
+      // States: 'pre' = before/during <think>, 'post' = after </think> (streaming normally)
+      // We buffer while inside a <think> block, then stream the rest directly.
+      let state: 'pre' | 'post' = 'pre';
+      let preBuffer = '';     // accumulates text before we know if there's a <think> block
+      let thinkBuffer = '';   // accumulates content while inside <think>...</think>
+      let inThinkTag = false; // true once we've seen the opening <think>
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) {
-          if (!finishedThinking && thinkBuffer && !thinkBuffer.includes('<think>')) {
-             controller.enqueue(encoder.encode(thinkBuffer));
+          // Stream ended — if we never got past the <think> block, emit whatever we have
+          if (state === 'pre') {
+            const safe = (preBuffer + thinkBuffer).replace(/<\/?think>/g, '').replace(/^[\n\r]+/, '');
+            if (safe) controller.enqueue(encoder.encode(safe));
           }
           break;
         }
@@ -78,22 +85,42 @@ RESPONSE FORMAT RULES (follow strictly):
           try {
             const parsed = JSON.parse(data);
             const text = parsed.choices?.[0]?.delta?.content;
-            if (text) {
-              if (!finishedThinking) {
-                thinkBuffer += text;
-                if (thinkBuffer.includes('</think>')) {
-                  finishedThinking = true;
-                  const cleanText = thinkBuffer.split('</think>')[1];
-                  if (cleanText) {
-                    controller.enqueue(encoder.encode(cleanText.replace(/^[\n\r]+/, '')));
-                  }
-                } else if (!thinkBuffer.includes('<') && thinkBuffer.length > 20) {
-                  // No think block detected at all
-                  finishedThinking = true;
-                  controller.enqueue(encoder.encode(thinkBuffer));
-                }
-              } else {
-                controller.enqueue(encoder.encode(text));
+            if (!text) continue;
+
+            if (state === 'post') {
+              // Already past the thinking block — stream directly
+              controller.enqueue(encoder.encode(text));
+              continue;
+            }
+
+            // state === 'pre': still looking for the end of <think>...</think>
+            preBuffer += text;
+
+            // Check if the model is even using a think block
+            if (!inThinkTag) {
+              if (preBuffer.includes('<think>')) {
+                inThinkTag = true;
+                // Move everything after <think> into thinkBuffer
+                thinkBuffer = preBuffer.split('<think>').slice(1).join('<think>');
+                preBuffer = '';
+              } else if (!preBuffer.includes('<') && preBuffer.length > 30) {
+                // Model not using thinking tags at all — emit buffer and switch to streaming
+                state = 'post';
+                controller.enqueue(encoder.encode(preBuffer));
+                preBuffer = '';
+                continue;
+              }
+            }
+
+            if (inThinkTag) {
+              thinkBuffer = preBuffer === '' ? thinkBuffer + text.split('<think>').pop()! : thinkBuffer;
+              if (thinkBuffer.includes('</think>')) {
+                state = 'post';
+                const afterThink = thinkBuffer.split('</think>').slice(1).join('</think>');
+                const clean = afterThink.replace(/^[\n\r]+/, '');
+                if (clean) controller.enqueue(encoder.encode(clean));
+                thinkBuffer = '';
+                preBuffer = '';
               }
             }
           } catch {

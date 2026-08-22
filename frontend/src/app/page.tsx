@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import IndiaImpactMap from "./components/IndiaImpactMap";
 import ChatbotWidget from "./components/ChatbotWidget";
 import {
@@ -211,13 +212,17 @@ function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) 
       {/* Main header */}
       <header className="bg-white border-b border-[#E2E8F0] relative z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 border-2 flex items-center justify-center font-bold text-lg sm:text-xl" style={{ borderColor: "#0B3CC8", color: "#0B3CC8", fontFamily: "var(--font-open-sans)" }}>
-              E
-            </div>
-            <div>
-              <div className="text-lg sm:text-xl font-bold tracking-tight" style={{ color: "#0B3CC8", fontFamily: "var(--font-open-sans)" }}>ENTITLE</div>
-              <div className="text-[10px] sm:text-[11px] text-[#64748B] mt-0.5 font-medium hidden sm:block">Welfare Entitlement Assistance · Citizen Services</div>
+          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+            <Image
+              src="/entitle-logo.jpg"
+              alt="ENTITLE"
+              width={160}
+              height={52}
+              className="h-11 w-auto object-contain"
+              priority
+            />
+            <div className="text-[11px] text-[#64748B] font-medium hidden lg:block border-l border-[#E2E8F0] pl-3">
+              Welfare Entitlement Assistance · Citizen Services
             </div>
           </Link>
 
