@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { useInView, useReducedMotion } from "framer-motion";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
+import { DEMO_DATA_LABEL, getSchemesForState, stateAbbr } from "./stateSchemes";
+import { useSchemeCardTrail } from "./useSchemeCardTrail";
+
+/** Reusable trail card elements. Cycled, never created per spawn. */
+const TRAIL_POOL_SIZE = 8;
 
 const GEO_URL = "/india-states.json";
 
@@ -83,10 +89,71 @@ export default function IndiaImpactMap() {
   const [activeHot,    setActiveHot]    = useState(0);
   const [counters,     setCounters]     = useState({ citizens: 0, schemes: 0, states: 0 });
 
+  const sectionRef   = useRef<HTMLElement>(null);
+  const statsInView  = useInView(sectionRef, { once: true, amount: 0.3 });
+  const reduceMotion = useReducedMotion();
+
+  const mapWrapRef = useRef<HTMLDivElement>(null);
+  const [tappedState, setTappedState] = useState<string | null>(null);
+  const [canHover,    setCanHover]    = useState(false);
+
+  // Gate on pointer capability rather than screen width, so a touchscreen
+  // laptop gets the tap fallback and a small desktop window still hovers.
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const sync = () => setCanHover(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const trailEnabled = canHover && !reduceMotion;
+
+  // Whichever state is currently "selected" - hover on desktop, tap on touch.
+  const activeState = hoveredState ?? tappedState;
+
+  // Retains the last hovered state so cards keep their content while fading
+  // out on leave instead of blanking. Adjusting state during render is the
+  // supported React pattern for deriving from a prop/state change.
+  const [trailState, setTrailState] = useState<string | null>(null);
+  if (hoveredState && hoveredState !== trailState) setTrailState(hoveredState);
+
+  const trailSchemes  = useMemo(() => getSchemesForState(trailState),  [trailState]);
+  const activeSchemes = useMemo(() => getSchemesForState(activeState), [activeState]);
+
+  const {
+    cardRefCallbacks,
+    handlePointerMove,
+    handlePointerEnter,
+    handlePointerLeave,
+  } = useSchemeCardTrail({
+    containerRef: mapWrapRef,
+    activeState: trailEnabled ? hoveredState : null,
+    poolSize: TRAIL_POOL_SIZE,
+    enabled: trailEnabled,
+  });
+
   useEffect(() => {
     setMounted(true);
 
+    const feedTimer = setInterval(() => setFeedIdx(p => (p + 1) % liveFeed.length),         3200);
+    const hotTimer  = setInterval(() => setActiveHot(p => (p + 1) % hotspotMarkers.length), 2400);
+
+    return () => { clearInterval(feedTimer); clearInterval(hotTimer); };
+  }, []);
+
+  // The counters used to run on mount, which meant they finished long before
+  // this below-the-fold section was ever on screen. Hold at zero until it is.
+  useEffect(() => {
+    if (!statsInView) return;
+
     const targets = { citizens: 43211, schemes: 106, states: 28 };
+
+    if (reduceMotion) {
+      setCounters(targets);
+      return;
+    }
+
     let step = 0;
     const counterTimer = setInterval(() => {
       step++;
@@ -97,18 +164,15 @@ export default function IndiaImpactMap() {
         states:   Math.round(eased * targets.states),
       });
       if (step >= 80) clearInterval(counterTimer);
-    }, 25);
+    }, 20);
 
-    const feedTimer = setInterval(() => setFeedIdx(p => (p + 1) % liveFeed.length),         3200);
-    const hotTimer  = setInterval(() => setActiveHot(p => (p + 1) % hotspotMarkers.length), 2400);
+    return () => clearInterval(counterTimer);
+  }, [statsInView, reduceMotion]);
 
-    return () => { clearInterval(counterTimer); clearInterval(feedTimer); clearInterval(hotTimer); };
-  }, []);
-
-  const hovered = hoveredState ? stateData[hoveredState] : null;
+  const hovered = activeState ? stateData[activeState] : null;
 
   return (
-    <section className="py-20 px-6" style={{ background: "#0A1628" }}>
+    <section ref={sectionRef} className="py-20 px-6" style={{ background: "#0A1628" }}>
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
@@ -122,6 +186,25 @@ export default function IndiaImpactMap() {
           <p className="text-[13px] max-w-md mx-auto leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>
             Citizens across 28 states actively discovering and claiming their entitlements.
             Hover any state to explore local impact.
+          </p>
+        </div>
+
+        {/* Shared demo-data notice. Covers BOTH the illustrative scheme cards
+            and the existing headline/per-state statistics on this map. */}
+        <div
+          className="flex items-start gap-3 max-w-3xl mx-auto mb-12 px-4 py-3 rounded"
+          style={{ background: "rgba(217,119,6,0.10)", border: "1px solid rgba(252,211,77,0.32)" }}
+        >
+          <span
+            className="shrink-0 text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-1 rounded-sm"
+            style={{ background: "rgba(252,211,77,0.18)", color: "#FCD34D" }}
+          >
+            Demo Data
+          </span>
+          <p className="text-[12.5px] leading-relaxed" style={{ color: "rgba(253,230,138,0.85)" }}>
+            <strong className="font-semibold">Illustrative data.</strong> The scheme cards,
+            impact statistics, per-state coverage figures and live activity feed shown on this
+            map are demonstration values, not live government or backend records.
           </p>
         </div>
 
@@ -155,12 +238,12 @@ export default function IndiaImpactMap() {
             <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }} />
 
             {/* State hover panel OR console-style live feed */}
-            {hovered && hoveredState ? (
+            {hovered && activeState ? (
               <div style={{ borderLeft: "2px solid #FF9933", paddingLeft: "14px" }}>
                 <div className="text-[10px] uppercase tracking-widest mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>
                   Selected State
                 </div>
-                <div className="text-base font-bold text-white mb-5">{hoveredState}</div>
+                <div className="text-base font-bold text-white mb-5">{activeState}</div>
                 {[
                   { label: "Citizens Helped", value: hovered.citizens.toLocaleString(), color: "#FF9933" },
                   { label: "Coverage",        value: `${hovered.coverage}%`,            color: "#ffffff" },
@@ -224,7 +307,14 @@ export default function IndiaImpactMap() {
           </div>
 
           {/* ── Map ── */}
-          <div className="flex-1 min-h-[400px]">
+          <div className="flex-1 w-full min-w-0">
+          <div
+            ref={mapWrapRef}
+            className="relative min-h-[400px]"
+            onPointerMove={handlePointerMove}
+            onPointerEnter={handlePointerEnter}
+            onPointerLeave={handlePointerLeave}
+          >
             {mounted && (
               <ComposableMap
                 projection="geoMercator"
@@ -237,7 +327,7 @@ export default function IndiaImpactMap() {
                     geographies.map((geo: any) => {
                       const name  = geo.properties.ST_NM as string;
                       const data  = stateData[name];
-                      const isHov = hoveredState === name;
+                      const isHov = activeState === name;
                       return (
                         <Geography
                           key={geo.rsmKey}
@@ -252,6 +342,11 @@ export default function IndiaImpactMap() {
                           }}
                           onMouseEnter={() => setHoveredState(name)}
                           onMouseLeave={() => setHoveredState(null)}
+                          onClick={() => {
+                            // Tap-to-select only where there is no real hover,
+                            // so desktop behaviour is untouched.
+                            if (!canHover) setTappedState(prev => (prev === name ? null : name));
+                          }}
                         />
                       );
                     })
@@ -262,6 +357,18 @@ export default function IndiaImpactMap() {
                   const active = activeHot === i;
                   return (
                     <Marker key={m.state} coordinates={m.coords}>
+                      {/* Expanding ring - remounts on each rotation, so the
+                          CSS animation restarts and the marker reads "live".
+                          Removed entirely under prefers-reduced-motion. */}
+                      {active && (
+                        <circle
+                          className="hotspot-ping"
+                          r={16}
+                          fill="none"
+                          stroke="#FF9933"
+                          strokeWidth={1.4}
+                        />
+                      )}
                       <circle
                         r={active ? 16 : 8}
                         fill="#FF9933"
@@ -308,6 +415,133 @@ export default function IndiaImpactMap() {
                 })}
               </ComposableMap>
             )}
+
+            {/* ── Cursor trail overlay ──
+                Pool content is keyed to trailState, so React renders these
+                cards exactly once per state change and never during pointer
+                movement. Position/opacity are driven imperatively by the hook. */}
+            {trailEnabled && trailSchemes.length > 0 && (
+              <div className="trail-layer" aria-hidden="true">
+                <div
+                  className="trail-name"
+                  style={{ opacity: hoveredState ? 1 : 0, transition: "opacity 0.18s ease" }}
+                >
+                  <span className="trail-name__inner">
+                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#FF9933" }} />
+                    <span
+                      className="text-[11px] font-bold uppercase tracking-[0.16em] text-white"
+                      style={{ fontFamily: "var(--font-oswald), sans-serif" }}
+                    >
+                      {trailState}
+                    </span>
+                  </span>
+                </div>
+
+                {Array.from({ length: TRAIL_POOL_SIZE }).map((_, i) => {
+                  const scheme = trailSchemes[i % trailSchemes.length];
+                  return (
+                    <div key={i} ref={cardRefCallbacks[i]} className="trail-card">
+                      <span className="trail-card__sheet trail-card__sheet--back" />
+                      <span className="trail-card__sheet trail-card__sheet--mid" />
+                      <div className="trail-card__face">
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <span
+                            className="text-[8.5px] font-bold uppercase tracking-[0.1em] px-1.5 py-0.5 rounded-sm"
+                            style={{ background: "rgba(96,165,250,0.16)", color: "#93C5FD" }}
+                          >
+                            {scheme.category}
+                          </span>
+                          <span
+                            className="text-[8.5px] font-bold tracking-[0.08em] px-1.5 py-0.5 rounded-sm shrink-0"
+                            style={{ background: "rgba(252,211,77,0.20)", color: "#FCD34D", border: "1px solid rgba(252,211,77,0.4)" }}
+                          >
+                            {DEMO_DATA_LABEL}
+                          </span>
+                        </div>
+                        {/* Fixed two-line box keeps every trail card the same height, so the
+                            name chip can sit a predictable distance above them. */}
+                        <div className="text-[11.5px] font-bold text-white leading-snug mb-1.5 line-clamp-2 h-[31px]">
+                          {scheme.name}
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-semibold" style={{ color: "#FF9933" }}>
+                            {scheme.detail}
+                          </span>
+                          <span className="text-[8.5px] font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>
+                            {trailState ? stateAbbr(trailState) : ""}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* ── Touch / reduced-motion fallback ──
+              No cursor to trail, so the same scheme data is shown anchored
+              beneath the map. Tapping another state replaces these. */}
+          {!trailEnabled && (
+            <div className="mt-6">
+              {activeState && activeSchemes.length > 0 ? (
+                <>
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#FF9933" }} />
+                      <span
+                        className="text-[12px] font-bold uppercase tracking-[0.16em] text-white truncate"
+                        style={{ fontFamily: "var(--font-oswald), sans-serif" }}
+                      >
+                        {activeState}
+                      </span>
+                    </div>
+                    <span
+                      className="shrink-0 text-[9px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded-sm"
+                      style={{ background: "rgba(252,211,77,0.18)", color: "#FCD34D", border: "1px solid rgba(252,211,77,0.4)" }}
+                    >
+                      {DEMO_DATA_LABEL}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-2.5">
+                    {activeSchemes.slice(0, 3).map((scheme, i) => (
+                      <div
+                        key={scheme.name}
+                        className="trail-card__face"
+                        style={{ transform: `rotate(${[-0.8, 0.5, -0.4][i] ?? 0}deg)` }}
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <span
+                            className="text-[9px] font-bold uppercase tracking-[0.1em] px-1.5 py-0.5 rounded-sm"
+                            style={{ background: "rgba(96,165,250,0.16)", color: "#93C5FD" }}
+                          >
+                            {scheme.category}
+                          </span>
+                          <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>
+                            {stateAbbr(activeState)}
+                          </span>
+                        </div>
+                        <div className="text-[12.5px] font-bold text-white leading-snug mb-1">
+                          {scheme.name}
+                        </div>
+                        <span className="text-[11.5px] font-semibold" style={{ color: "#FF9933" }}>
+                          {scheme.detail}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p
+                  className="text-[12px] text-center py-3 rounded"
+                  style={{ color: "rgba(255,255,255,0.35)", border: "1px dashed rgba(255,255,255,0.12)" }}
+                >
+                  Tap any state on the map to see its welfare schemes.
+                </p>
+              )}
+            </div>
+          )}
           </div>
         </div>
       </div>

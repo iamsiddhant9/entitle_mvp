@@ -132,3 +132,170 @@ body {
 .live-dot {
   animation: live-pulse 1.8s ease-in-out infinite;
 }
+
+/* ───────────────────────────────────────────────────────────────
+   MOTION LAYER
+   Decorative, CSS-only animations. Everything here is disabled by
+   the prefers-reduced-motion block further down this file.
+   ─────────────────────────────────────────────────────────────── */
+
+/* Hero — slow falling light beams behind the photo. Colours are drawn
+   from the existing palette (saffron #FF9933 / brand blue #7C9EFF). */
+@keyframes beam-fall {
+  0%   { transform: translate3d(0, -40vh, 0); opacity: 0; }
+  10%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translate3d(0, 135vh, 0); opacity: 0; }
+}
+
+.hero-beams {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-beam {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 30vh;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, transparent, var(--beam-color), transparent);
+  opacity: 0;
+  filter: blur(0.5px);
+  will-change: transform, opacity;
+  animation: beam-fall var(--beam-duration, 16s) linear var(--beam-delay, 0s) infinite;
+}
+
+/* A single very slow horizontal wash, so the hero never sits perfectly still. */
+@keyframes beam-drift {
+  0%, 100% { transform: translate3d(-6%, 0, 0); }
+  50%      { transform: translate3d(6%, 0, 0); }
+}
+
+.hero-wash {
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 70%;
+  pointer-events: none;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(255, 153, 51, 0.10), transparent 70%);
+  will-change: transform;
+  animation: beam-drift 24s ease-in-out infinite;
+}
+
+/* Impact map — expanding ring on the active hotspot, so it reads "live".
+   Duration matches the 2400ms hotspot rotation in IndiaImpactMap. */
+@keyframes hotspot-ping {
+  0%   { transform: scale(0.3); opacity: 0.55; }
+  70%  { transform: scale(1.55); opacity: 0; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+
+.hotspot-ping {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hotspot-ping 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   SCHEME CARD TRAIL (India impact map)
+   Cards are positioned by framer-motion via transform; everything
+   here is static geometry. The stacked backing sheets are adapted
+   from Codrops' StackSlider "pile of prints" treatment, restated
+   in the ENTITLE navy/saffron palette.
+   ─────────────────────────────────────────────────────────────── */
+
+.trail-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 20;
+  perspective: 1200px;
+  perspective-origin: 50% 100%;
+}
+
+.trail-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200px;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Offset sheets peeking out behind the face, so each card reads as
+   the top of a small pile rather than a lone rectangle. */
+.trail-card__sheet {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: #122442;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.trail-card__sheet--back {
+  transform: rotate(-5deg) translate(-5px, 5px) scale(0.97);
+  opacity: 0.5;
+}
+
+.trail-card__sheet--mid {
+  transform: rotate(2.6deg) translate(4px, 2px) scale(0.985);
+  opacity: 0.75;
+}
+
+.trail-card__face {
+  position: relative;
+  border-radius: 10px;
+  padding: 10px 12px 11px;
+  background: linear-gradient(160deg, #14294a 0%, #0C1C33 100%);
+  border: 1px solid rgba(255, 153, 51, 0.30);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Cursor-following state name. */
+/* Pinned to the map's empty top-left rather than following the cursor:
+   trail cards linger exactly where the cursor just passed, so a cursor-anchored
+   label inevitably covers them - including the demo-data badge, which has to
+   stay readable. */
+.trail-name {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  pointer-events: none;
+  z-index: 999999;
+}
+
+.trail-name__inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(10, 22, 40, 0.92);
+  border: 1px solid rgba(255, 153, 51, 0.45);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* ─── Reduced motion ───────────────────────────────────────────
+   Decorative layers are removed outright rather than frozen
+   mid-animation. JS-driven motion is handled separately via
+   framer-motion's useReducedMotion. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-beams,
+  .hero-wash,
+  .trail-layer {
+    display: none;
+  }
+
+  .hotspot-ping,
+  .live-dot {
+    animation: none;
+  }
+
+  .hotspot-ping {
+    opacity: 0;
+  }
+}

@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import IndiaImpactMap from "./components/IndiaImpactMap";
 import ChatbotWidget from "./components/ChatbotWidget";
+import { EASE_OUT, HeroBeams, WordReveal } from "./components/motion";
 import {
   ArrowRight,
   CheckCircle2,
@@ -276,7 +278,8 @@ function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) 
   );
 }
 
-const typewriterPhrases = [
+/* Same five phrases as before - only the reveal technique changed. */
+const heroPhrases = [
   "Know Your Rights.\nClaim Your Benefits.",
   "अपने अधिकार जानें।\nअपने लाभ प्राप्त करें।",
   "तुमचे हक्क जाणून घ्या.\nतुमचे फायदे मिळवा.",
@@ -285,58 +288,40 @@ const typewriterPhrases = [
   "Know Your Rights.\nClaim Your Benefits."
 ];
 
-function HeroTypewriter() {
-  const [displayText, setDisplayText] = useState("");
+/** How long each phrase holds before handing over to the next language. */
+const HERO_PHRASE_HOLD_MS = 1900;
+
+/**
+ * Cycles the headline through all five languages, then rests on English.
+ * Each phrase reveals word by word (blur + rise + fade) instead of typing
+ * character by character.
+ */
+function HeroHeadline() {
+  const reduceMotion = useReducedMotion();
   const [phraseIndex, setPhraseIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const isLastPhrase = phraseIndex === heroPhrases.length - 1;
 
   useEffect(() => {
-    let typingSpeed = 45;
-    if (isDeleting) typingSpeed = 20;
-
-    const currentPhrase = typewriterPhrases[phraseIndex];
-    
-    if (!isDeleting && displayText === currentPhrase) {
-      if (phraseIndex === typewriterPhrases.length - 1) {
-        return;
-      }
-      const timeout = setTimeout(() => setIsDeleting(true), 800);
-      return () => clearTimeout(timeout);
-    }
-
-    if (isDeleting && displayText === "") {
-      setIsDeleting(false);
-      setPhraseIndex((prev) => prev + 1);
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      setDisplayText((prev) => 
-        isDeleting
-          ? currentPhrase.substring(0, prev.length - 1)
-          : currentPhrase.substring(0, prev.length + 1)
-      );
-    }, typingSpeed);
-
+    // Reduced motion rests on the first phrase, which is the same English
+    // copy the cycle ends on - no rotation, nothing to catch up with.
+    if (reduceMotion || isLastPhrase) return;
+    const timeout = setTimeout(() => setPhraseIndex((prev) => prev + 1), HERO_PHRASE_HOLD_MS);
     return () => clearTimeout(timeout);
-  }, [displayText, isDeleting, phraseIndex]);
+  }, [phraseIndex, isLastPhrase, reduceMotion]);
 
   return (
-    <>
-      {displayText.split('\n').map((line, i, arr) => (
-        <span key={i}>
-          {line}
-          {i === 0 && displayText.includes('\n') && <br />}
-        </span>
-      ))}
-      <span className="inline-block w-[4px] bg-white ml-2 animate-pulse" style={{ height: "0.75em", verticalAlign: "middle", opacity: phraseIndex === typewriterPhrases.length - 1 && displayText === typewriterPhrases[phraseIndex] ? 0 : 1 }}></span>
-    </>
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.span key={phraseIndex} className="block">
+        <WordReveal text={heroPhrases[phraseIndex]} />
+      </motion.span>
+    </AnimatePresence>
   );
 }
 
 /* ─── PAGE ─── */
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const reduceMotion = useReducedMotion();
 
   return (
     <div className="flex flex-col min-h-screen" style={{ fontFamily: "var(--font-open-sans), sans-serif", background: "#F3F4F6" }}>
@@ -344,6 +329,10 @@ export default function LandingPage() {
 
       {/* ── HERO ── */}
       <section id="main" className="relative py-20 md:py-28 px-6 overflow-hidden bg-[#0A1628]" style={{ backgroundImage: "linear-gradient(to bottom, rgba(10, 22, 40, 0.6), rgba(11, 60, 200, 0.8)), url('/hero-bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
+
+        {/* Slow light beams behind the photo. Rendered before the content so
+            the headline and CTAs always paint on top. */}
+        <HeroBeams />
 
         <div className="relative max-w-4xl mx-auto text-center text-white">
           {/* Badge */}
@@ -357,7 +346,7 @@ export default function LandingPage() {
           </div>
 
           <h1 translate="no" className="notranslate text-[3rem] md:text-[4rem] font-bold leading-[1.08] mb-5 text-white h-[200px] sm:h-[160px] md:h-[160px] flex flex-col justify-end md:block" style={{ letterSpacing: "-0.035em", fontFamily: "var(--font-open-sans), sans-serif" }}>
-            <HeroTypewriter />
+            <HeroHeadline />
           </h1>
 
           <p className="text-[1.05rem] text-white/65 mb-10 max-w-xl mx-auto leading-relaxed font-normal">
@@ -432,8 +421,22 @@ export default function LandingPage() {
 
           <div className="bg-white border border-[#E2E8F0] rounded-sm overflow-hidden">
             {schemes.map((s, i) => (
-              <div key={s.name} className={`flex items-center gap-4 px-7 py-5 hover:bg-[#F8FAFC] transition-colors ${i > 0 ? "border-t border-[#E2E8F0]" : ""}`}>
-                <div className="flex-1 min-w-0">
+              <motion.div
+                key={s.name}
+                className={`group relative flex items-center gap-4 px-7 py-5 hover:bg-[#F8FAFC] transition-colors ${i > 0 ? "border-t border-[#E2E8F0]" : ""}`}
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={reduceMotion ? { duration: 0 } : { duration: 0.5, delay: i * 0.08, ease: EASE_OUT }}
+              >
+                {/* Accent bar grows from the row's centre line on hover -
+                    lighter-weight than a lift, which would fight the dividers. */}
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-0 bottom-0 w-[3px] origin-center scale-y-0 transition-transform duration-300 ease-out group-hover:scale-y-100 motion-reduce:transition-none"
+                  style={{ background: "#E8620A" }}
+                />
+                <div className="flex-1 min-w-0 transition-transform duration-300 ease-out group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0">
                   <div className="flex items-center gap-3 mb-0.5">
                     <span className="font-bold text-[#0F172A] text-[15px]">{s.name}</span>
                     <span className="text-[11px] text-[#64748B] hidden md:block">— {s.full}</span>
@@ -456,7 +459,7 @@ export default function LandingPage() {
                     </button>
                   )}
                 </div>
-              </div>
+              </motion.div>
             ))}
 
             <div className="px-7 py-4 border-t border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-between">
@@ -509,11 +512,15 @@ export default function LandingPage() {
                 body: "Your documents never leave your device. We process only cryptographic summaries using a zero-knowledge architecture.",
                 proof: "Zero server uploads · Zero data retention",
               },
-            ].map(({ n, title, body, proof }) => (
-              <div
+            ].map(({ n, title, body, proof }, i) => (
+              <motion.div
                 key={n}
                 className="group grid grid-cols-[40px_1fr] md:grid-cols-[72px_1fr_auto] gap-4 md:gap-6 py-7 md:py-9 items-start cursor-default"
                 style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={reduceMotion ? { duration: 0 } : { duration: 0.55, delay: i * 0.1, ease: EASE_OUT }}
               >
                 {/* Number */}
                 <div
@@ -549,7 +556,7 @@ export default function LandingPage() {
                     {proof}
                   </span>
                 </div>
-              </div>
+              </motion.div>
             ))}
             <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }} />
           </div>
@@ -597,16 +604,37 @@ export default function LandingPage() {
                   <span className="font-semibold text-[#0F172A] text-sm group-hover:text-[#0B3CC8] transition-colors">
                     {f.q}
                   </span>
-                  {openFaq === i
-                    ? <Minus className="w-4 h-4 shrink-0" style={{ color: "#0B3CC8" }} />
-                    : <Plus className="w-4 h-4 shrink-0 text-[#64748B]" />
-                  }
+                  <motion.span
+                    className="shrink-0"
+                    animate={{ rotate: openFaq === i ? 180 : 0 }}
+                    transition={reduceMotion ? { duration: 0 } : { duration: 0.3, ease: EASE_OUT }}
+                  >
+                    {openFaq === i
+                      ? <Minus className="w-4 h-4" style={{ color: "#0B3CC8" }} />
+                      : <Plus className="w-4 h-4 text-[#64748B]" />
+                    }
+                  </motion.span>
                 </button>
-                {openFaq === i && (
-                  <div className="pb-5 text-[13px] text-[#64748B] leading-relaxed">
-                    {f.a}
-                  </div>
-                )}
+                <AnimatePresence initial={false}>
+                  {openFaq === i && (
+                    <motion.div
+                      key="answer"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : { height: { duration: 0.32, ease: EASE_OUT }, opacity: { duration: 0.22 } }
+                      }
+                      className="overflow-hidden"
+                    >
+                      <div className="pb-5 text-[13px] text-[#64748B] leading-relaxed">
+                        {f.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ))}
           </div>
