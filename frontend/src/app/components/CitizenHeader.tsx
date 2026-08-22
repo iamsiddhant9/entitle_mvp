@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { User } from "lucide-react";
+import LogoIcon from "./LogoIcon";
 import { useCitizen } from "@/context/CitizenProfileContext";
 
 interface Props {
@@ -22,14 +22,10 @@ export default function CitizenHeader({ subtitle = "Welfare Entitlement Assistan
     <header className="bg-white border-b border-[#E2E8F0]">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-          <Image
-            src="/entitle-logo.jpg"
-            alt="ENTITLE"
-            width={160}
-            height={52}
-            className="h-11 w-auto object-contain"
-            priority
-          />
+          <div className="flex items-center gap-2.5">
+            <LogoIcon className="w-8 h-8" />
+            <span className="font-black text-[20px] tracking-[-0.04em] text-[#0B3CC8]">ENTITLE</span>
+          </div>
           <div className="text-[11px] text-[#64748B] font-medium hidden lg:block border-l border-[#E2E8F0] pl-3">
             {subtitle}
           </div>

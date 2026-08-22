@@ -8,6 +8,8 @@ import IndiaImpactMap from "./components/IndiaImpactMap";
 import ChatbotWidget from "./components/ChatbotWidget";
 import CardSwap, { Card } from "./components/CardSwap";
 import SpotlightCard from "./components/SpotlightCard";
+import LogoIcon from "./components/LogoIcon";
+import MinistryWheel from "./components/MinistryWheel";
 import {
   ArrowRight,
   CheckCircle2,
@@ -217,15 +219,7 @@ function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) 
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 relative overflow-hidden rounded-[4px]">
-                <Image
-                  src="/entitle-logo.jpg"
-                  alt="ENTITLE Logo Mark"
-                  fill
-                  className="object-cover object-left"
-                  priority
-                />
-              </div>
+              <LogoIcon className="w-9 h-9" />
               <span className="font-black text-[22px] tracking-[-0.04em] text-[#0B3CC8]">ENTITLE</span>
             </div>
             <div className="text-[11px] text-[#64748B] font-medium hidden lg:block border-l border-[#E2E8F0] pl-3">
@@ -499,6 +493,7 @@ export default function LandingPage() {
       <IndiaImpactMap />
 
       {/* ── SCHEMES DIRECTORY ── */}
+      <MinistryWheel />
       <section id="schemes" className="py-20 px-6" style={{ background: "#F3F4F6" }}>
         <div className="max-w-5xl mx-auto">
           <div className="flex items-end justify-between mb-8">
