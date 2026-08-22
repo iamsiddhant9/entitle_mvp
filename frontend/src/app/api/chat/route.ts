@@ -36,7 +36,7 @@ RESPONSE FORMAT RULES (follow strictly):
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'qwen/qwen3.6-27b',
+      model: 'llama-3.3-70b-versatile',
       messages: [systemMessage, ...messages],
       stream: true,
       temperature: 0.7,
