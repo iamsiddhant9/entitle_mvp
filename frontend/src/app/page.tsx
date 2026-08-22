@@ -1,10 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import IndiaImpactMap from "./components/IndiaImpactMap";
 import ChatbotWidget from "./components/ChatbotWidget";
+
+// Dynamic import — no SSR (three.js requires browser APIs)
+const ModelViewer = dynamic(
+  () => import("@/components/shared/ModelViewer"),
+  { ssr: false, loading: () => <ModelSkeleton /> }
+);
+
+function ModelSkeleton() {
+  return (
+    <div
+      className="w-full h-full rounded-2xl animate-pulse"
+      style={{ background: "rgba(255,255,255,0.06)", minHeight: 380 }}
+    />
+  );
+}
 import {
   ArrowRight,
   CheckCircle2,
@@ -348,70 +364,125 @@ export default function LandingPage() {
       <SiteHeader />
 
       {/* ── HERO ── */}
-      <section id="main" className="relative py-20 md:py-28 px-6 overflow-hidden bg-[#0A1628]" style={{ backgroundImage: "linear-gradient(to bottom, rgba(10, 22, 40, 0.6), rgba(11, 60, 200, 0.8)), url('/hero-bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
+      <section
+        id="main"
+        className="relative py-16 md:py-24 px-6 overflow-hidden bg-[#0A1628]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to bottom, rgba(10, 22, 40, 0.6), rgba(11, 60, 200, 0.8)), url('/hero-bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="relative max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10 md:gap-6">
 
-        <div className="relative max-w-4xl mx-auto text-center text-white">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-3 mb-8" style={{ borderLeft: "3px solid #FF9933", paddingLeft: "12px" }}>
-            <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: "#FF9933" }} />
-            <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.14em] uppercase" style={{ color: "rgba(255,255,255,0.6)" }}>
-              <span>Independent Welfare Platform</span>
-              <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
-              <span style={{ color: "rgba(255,255,255,0.35)" }}>106 Schemes Tracked</span>
+          {/* ── LEFT: Text + CTA ── */}
+          <div className="flex-1 text-white text-center md:text-left">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-3 mb-8" style={{ borderLeft: "3px solid #FF9933", paddingLeft: "12px" }}>
+              <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: "#FF9933" }} />
+              <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.14em] uppercase" style={{ color: "rgba(255,255,255,0.6)" }}>
+                <span>Independent Welfare Platform</span>
+                <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
+                <span style={{ color: "rgba(255,255,255,0.35)" }}>106 Schemes Tracked</span>
+              </div>
+            </div>
+
+            <h1
+              translate="no"
+              className="notranslate text-[2.6rem] md:text-[3.5rem] font-bold leading-[1.08] mb-5 text-white h-[180px] sm:h-[150px] md:h-[145px] flex flex-col justify-end md:block"
+              style={{ letterSpacing: "-0.035em", fontFamily: "var(--font-open-sans), sans-serif" }}
+            >
+              <HeroTypewriter />
+            </h1>
+
+            <p className="text-[1.05rem] text-white/65 mb-10 max-w-xl mx-auto md:mx-0 leading-relaxed font-normal">
+              An independent, blockchain-secured citizen platform designed to accurately map your profile to valid central and state welfare schemes in plain language.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-10">
+              <Link href="/assistant">
+                <button className="flex items-center gap-2.5 font-semibold px-7 py-3.5 rounded text-sm transition-all hover:opacity-90 shadow-lg" style={{ background: "#0B3CC8", color: "#fff" }}>
+                  Check Your Eligibility <ArrowRight className="w-4 h-4" />
+                </button>
+              </Link>
+              <a href="#schemes">
+                <button className="flex items-center gap-2.5 font-semibold px-7 py-3.5 rounded text-sm border border-white/25 text-white hover:bg-white/10 transition-all">
+                  Browse Directory <ExternalLink className="w-4 h-4" />
+                </button>
+              </a>
+            </div>
+
+            {/* Ministry logo circles */}
+            <div className="flex items-center justify-center md:justify-start gap-3 text-white/50 text-[13px]">
+              <div className="flex -space-x-2">
+                {[
+                  { abbr: "MoA", bg: "rgba(255,153,51,0.12)",  border: "rgba(255,153,51,0.35)",  text: "#FFBD6B", title: "Ministry of Agriculture & Farmers Welfare" },
+                  { abbr: "MoH", bg: "rgba(96,165,250,0.12)",  border: "rgba(96,165,250,0.35)",  text: "#93C5FD", title: "Ministry of Health & Family Welfare" },
+                  { abbr: "MoE", bg: "rgba(167,139,250,0.12)", border: "rgba(167,139,250,0.35)", text: "#C4B5FD", title: "Ministry of Education" },
+                  { abbr: "MRD", bg: "rgba(74,222,128,0.10)",  border: "rgba(74,222,128,0.30)",  text: "#86EFAC", title: "Ministry of Rural Development" },
+                  { abbr: "MoL", bg: "rgba(34,211,238,0.10)",  border: "rgba(34,211,238,0.30)",  text: "#67E8F9", title: "Ministry of Labour & Employment" },
+                ].map(({ abbr, bg, border, text, title }, i) => (
+                  <div key={i} title={title} className="w-9 h-9 rounded-full flex items-center justify-center font-bold"
+                    style={{ background: bg, border: `1.5px solid ${border}`, color: text, zIndex: 5 - i, fontSize: "8px", letterSpacing: "0.03em", marginLeft: i === 0 ? 0 : "-8px" }}>
+                    {abbr}
+                  </div>
+                ))}
+              </div>
+              <span><strong className="text-white">106 central schemes</strong> across <strong className="text-white">18 ministries</strong> — mapped and searchable.</span>
             </div>
           </div>
 
-          <h1 translate="no" className="notranslate text-[3rem] md:text-[4rem] font-bold leading-[1.08] mb-5 text-white h-[200px] sm:h-[160px] md:h-[160px] flex flex-col justify-end md:block" style={{ letterSpacing: "-0.035em", fontFamily: "var(--font-open-sans), sans-serif" }}>
-            <HeroTypewriter />
-          </h1>
-
-          <p className="text-[1.05rem] text-white/65 mb-10 max-w-xl mx-auto leading-relaxed font-normal">
-            An independent, blockchain-secured citizen platform designed to accurately map your profile to valid central and state welfare schemes in plain language.
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
-            <Link href="/assistant">
-              <button className="flex items-center gap-2.5 font-semibold px-7 py-3.5 rounded text-sm transition-all hover:opacity-90 shadow-lg" style={{ background: "#0B3CC8", color: "#fff" }}>
-                Check Your Eligibility <ArrowRight className="w-4 h-4" />
-              </button>
-            </Link>
-            <a href="#schemes">
-              <button className="flex items-center gap-2.5 font-semibold px-7 py-3.5 rounded text-sm border border-white/25 text-white hover:bg-white/10 transition-all">
-                Browse Directory <ExternalLink className="w-4 h-4" />
-              </button>
-            </a>
-          </div>
-
-          {/* Ministry logo circles */}
-          <div className="flex items-center justify-center gap-3 text-white/50 text-[13px]">
-            <div className="flex -space-x-2">
-              {[
-                { abbr: "MoA", bg: "rgba(255,153,51,0.12)",  border: "rgba(255,153,51,0.35)",  text: "#FFBD6B", title: "Ministry of Agriculture & Farmers Welfare" },
-                { abbr: "MoH", bg: "rgba(96,165,250,0.12)",  border: "rgba(96,165,250,0.35)",  text: "#93C5FD", title: "Ministry of Health & Family Welfare" },
-                { abbr: "MoE", bg: "rgba(167,139,250,0.12)", border: "rgba(167,139,250,0.35)", text: "#C4B5FD", title: "Ministry of Education" },
-                { abbr: "MRD", bg: "rgba(74,222,128,0.10)",  border: "rgba(74,222,128,0.30)",  text: "#86EFAC", title: "Ministry of Rural Development" },
-                { abbr: "MoL", bg: "rgba(34,211,238,0.10)",  border: "rgba(34,211,238,0.30)",  text: "#67E8F9", title: "Ministry of Labour & Employment" },
-              ].map(({ abbr, bg, border, text, title }, i) => (
-                <div
-                  key={i}
-                  title={title}
-                  className="w-9 h-9 rounded-full flex items-center justify-center font-bold"
-                  style={{
-                    background: bg,
-                    border: `1.5px solid ${border}`,
-                    color: text,
-                    zIndex: 5 - i,
-                    fontSize: "8px",
-                    letterSpacing: "0.03em",
-                    marginLeft: i === 0 ? 0 : "-8px",
-                  }}
-                >
-                  {abbr}
-                </div>
-              ))}
+          {/* ── RIGHT: 3D Model ── */}
+          {/* Hidden on small mobile to prevent layout breaking */}
+          <div className="hidden sm:flex flex-shrink-0 items-center justify-center w-full md:w-[420px]">
+            <div
+              className="relative rounded-2xl overflow-hidden"
+              style={{
+                width: 380,
+                height: 400,
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                backdropFilter: "blur(4px)",
+              }}
+            >
+              {/* Subtle glow ring behind the model */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at 50% 60%, rgba(11,60,200,0.35) 0%, transparent 70%)",
+                }}
+              />
+              <Suspense fallback={<ModelSkeleton />}>
+                <ModelViewer
+                  url="/models/entitle-icon.glb"
+                  width={380}
+                  height={400}
+                  defaultZoom={0.55}
+                  defaultRotationX={-30}
+                  defaultRotationY={15}
+                  autoRotate={true}
+                  autoRotateSpeed={0.4}
+                  /* ── Disable ALL user interaction for clean demo recording ── */
+                  enableManualRotation={false}
+                  enableHoverRotation={false}
+                  enableMouseParallax={false}
+                  enableManualZoom={false}
+                  showScreenshotButton={false}
+                  /* ── Lighting tuned for dark hero background ── */
+                  environmentPreset="city"
+                  ambientIntensity={0.5}
+                  keyLightIntensity={1.2}
+                  fillLightIntensity={0.6}
+                  rimLightIntensity={1.0}
+                  fadeIn={true}
+                  autoFrame={true}
+                />
+              </Suspense>
             </div>
-            <span><strong className="text-white">106 central schemes</strong> across <strong className="text-white">18 ministries</strong> — mapped and searchable.</span>
           </div>
+
         </div>
       </section>
 
