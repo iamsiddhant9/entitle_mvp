@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
+import CitizenHeader from "@/app/components/CitizenHeader";
 import Link from "next/link";
 import {
   User, ShieldCheck, MapPin, Briefcase, IndianRupee,
@@ -10,7 +11,7 @@ import { useCitizen } from "@/context/CitizenProfileContext";
 import { getCitizenProfile, CitizenProfile, ApiError } from "@/lib/api";
 
 function ProfilePageInner() {
-  const { citizenId } = useCitizen();
+  const { citizenId, deleteSession } = useCitizen();
   const [profile, setProfile] = useState<CitizenProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,25 +45,7 @@ function ProfilePageInner() {
       </div>
 
       {/* Header */}
-      <header className="bg-white border-b border-[#E2E8F0]">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4">
-            <div className="w-11 h-11 border-2 flex items-center justify-center font-bold text-xl" style={{ borderColor: "#0B3CC8", color: "#0B3CC8" }}>E</div>
-            <div>
-              <div className="text-xl font-bold tracking-tight" style={{ color: "#0B3CC8" }}>ENTITLE</div>
-              <div className="text-[11px] text-[#64748B] mt-0.5 font-medium">Welfare Entitlement Assistance</div>
-            </div>
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "#EEF3FF" }}>
-              <User className="w-5 h-5" style={{ color: "#0B3CC8" }} />
-            </div>
-            <div className="text-sm font-semibold text-[#0F172A]">
-              {citizenId ? `ENT-${citizenId.slice(0, 8).toUpperCase()}` : "No session"}
-            </div>
-          </div>
-        </div>
-      </header>
+      <CitizenHeader />
 
       {/* Navigation */}
       <div className="bg-white border-b border-[#E2E8F0]">
@@ -127,25 +110,57 @@ function ProfilePageInner() {
               </div>
             </div>
 
-            <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-              <ProfileItem icon={<User />} label="Full Name" value={profile.full_name ? profile.full_name : "Not provided (Scan Aadhaar)"} required isMissing={!profile.full_name} />
-              <ProfileItem icon={<User />} label="Age" value={profile.age ? `${profile.age} years` : "Not provided"} required isMissing={!profile.age} />
-              <ProfileItem icon={<Users />} label="Gender" value={profile.gender ? capitalize(profile.gender) : "Not provided"} required isMissing={!profile.gender} />
-              <ProfileItem icon={<MapPin />} label="State" value={profile.state ? profile.state : "Not provided"} required isMissing={!profile.state} />
-              <ProfileItem icon={<Hash />} label="Caste Category" value={profile.caste ? profile.caste.toUpperCase() : "Not provided"} required isMissing={!profile.caste} />
-              <ProfileItem icon={<Briefcase />} label="Occupation" value={profile.occupation ? capitalize(profile.occupation.replace('_', ' ')) : "Not provided"} required isMissing={!profile.occupation} />
-              <ProfileItem icon={<IndianRupee />} label="Annual Income" value={profile.income !== null ? `₹${profile.income.toLocaleString()}` : "Not provided"} required isMissing={profile.income === null} />
-              <ProfileItem icon={<Activity />} label="Disability" value={profile.disability !== null ? (profile.disability ? "Yes" : "No") : "Not provided"} isMissing={profile.disability === null} />
-              <ProfileItem icon={<ShieldCheck />} label="Land Owned" value={profile.land_owned !== null ? (profile.land_owned ? "Yes" : "No") : "Not provided"} isMissing={profile.land_owned === null} />
+            <div className="p-8 bg-[#F8FAFC]">
+              {/* Personal Details */}
+              <div className="mb-8">
+                <h3 className="text-sm font-bold text-[#0F172A] uppercase tracking-wider mb-4 pb-2 border-b border-[#E2E8F0]">Personal Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <ProfileCard icon={<User />} label="Full Name" value={profile.full_name ? profile.full_name : "Not provided"} required isMissing={!profile.full_name} />
+                  <ProfileCard icon={<User />} label="Age" value={profile.age ? `${profile.age} years` : "Not provided"} required isMissing={!profile.age} />
+                  <ProfileCard icon={<Users />} label="Gender" value={profile.gender ? capitalize(profile.gender) : "Not provided"} required isMissing={!profile.gender} />
+                </div>
+              </div>
+
+              {/* Demographics */}
+              <div className="mb-8">
+                <h3 className="text-sm font-bold text-[#0F172A] uppercase tracking-wider mb-4 pb-2 border-b border-[#E2E8F0]">Demographics</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <ProfileCard icon={<MapPin />} label="State" value={profile.state ? profile.state : "Not provided"} required isMissing={!profile.state} />
+                  <ProfileCard icon={<Hash />} label="Caste Category" value={profile.caste ? profile.caste.toUpperCase() : "Not provided"} required isMissing={!profile.caste} />
+                </div>
+              </div>
+
+              {/* Socio-Economic Status */}
+              <div>
+                <h3 className="text-sm font-bold text-[#0F172A] uppercase tracking-wider mb-4 pb-2 border-b border-[#E2E8F0]">Socio-Economic Status</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <ProfileCard icon={<Briefcase />} label="Occupation" value={profile.occupation ? capitalize(profile.occupation.replace('_', ' ')) : "Not provided"} required isMissing={!profile.occupation} />
+                  <ProfileCard icon={<IndianRupee />} label="Annual Income" value={profile.income !== null ? `₹${profile.income.toLocaleString()}` : "Not provided"} required isMissing={profile.income === null} />
+                  <ProfileCard icon={<Activity />} label="Disability" value={profile.disability !== null ? (profile.disability ? "Yes" : "No") : "Not provided"} isMissing={profile.disability === null} />
+                  <ProfileCard icon={<ShieldCheck />} label="Land Owned" value={profile.land_owned !== null ? (profile.land_owned ? "Yes" : "No") : "Not provided"} isMissing={profile.land_owned === null} />
+                </div>
+              </div>
             </div>
 
             <div className="bg-[#EEF3FF] px-8 py-4 border-t border-[#E2E8F0] flex items-center justify-between">
               <p className="text-sm text-[#0B3CC8] font-medium">To add missing verified data, upload official documents.</p>
-              <Link href="/documents">
-                <button className="text-xs font-bold uppercase tracking-wider bg-white border border-[#0B3CC8] text-[#0B3CC8] px-4 py-2 rounded-sm hover:bg-[#0B3CC8] hover:text-white transition-colors">
-                  Go to Wallet
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => {
+                    if(confirm('Are you sure you want to delete your profile and start fresh? All data will be lost.')) {
+                      deleteSession();
+                    }
+                  }}
+                  className="text-xs font-bold uppercase tracking-wider bg-white border border-red-500 text-red-500 px-4 py-2 rounded-sm hover:bg-red-50 transition-colors"
+                >
+                  Start Fresh
                 </button>
-              </Link>
+                <Link href="/documents">
+                  <button className="text-xs font-bold uppercase tracking-wider bg-[#0B3CC8] border border-[#0B3CC8] text-white px-4 py-2 rounded-sm hover:bg-[#0930A0] transition-colors">
+                    Go to Wallet
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         ) : null}
@@ -154,20 +169,22 @@ function ProfilePageInner() {
   );
 }
 
-function ProfileItem({ icon, label, value, required, isMissing }: { icon: React.ReactNode, label: string, value: string, required?: boolean, isMissing?: boolean }) {
+function ProfileCard({ icon, label, value, required, isMissing }: { icon: React.ReactNode, label: string, value: string, required?: boolean, isMissing?: boolean }) {
   return (
-    <div className="flex items-start gap-4">
-      <div className="w-10 h-10 rounded-sm bg-[#F1F5F9] text-[#64748B] flex items-center justify-center shrink-0">
-        {icon}
-      </div>
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <p className="text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">{label}</p>
+    <div className="flex flex-col gap-3 p-4 bg-white border border-[#E2E8F0] rounded-md shadow-sm hover:border-[#0B3CC8] hover:shadow-md transition-all group">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-[#F1F5F9] text-[#64748B] flex items-center justify-center shrink-0 group-hover:bg-[#EEF3FF] group-hover:text-[#0B3CC8] transition-colors">
+          {icon}
+        </div>
+        <div className="flex items-center gap-2 flex-1">
+          <p className="text-[11px] font-bold tracking-widest uppercase text-[#475569]">{label}</p>
           {required && isMissing && (
-             <span className="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">REQUIRED</span>
+             <span className="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200 ml-auto">REQUIRED</span>
           )}
         </div>
-        <p className={`font-semibold text-base ${isMissing ? (required ? "text-red-500" : "text-[#94A3B8]") : "text-[#0F172A]"}`}>{value}</p>
+      </div>
+      <div className="mt-1">
+        <p className={`font-semibold text-[15px] ${isMissing ? (required ? "text-red-500" : "text-[#94A3B8]") : "text-[#0F172A]"}`}>{value}</p>
       </div>
     </div>
   );

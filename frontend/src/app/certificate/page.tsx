@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
+import CitizenHeader from "@/app/components/CitizenHeader";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import QRCode from "react-qr-code";
@@ -86,33 +87,7 @@ function CertificateInner() {
       </div>
 
       {/* Header */}
-      <header className="bg-white border-b border-[#E2E8F0]">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4">
-            <div className="w-11 h-11 border-2 flex items-center justify-center font-bold text-xl" style={{ borderColor: "#0B3CC8", color: "#0B3CC8" }}>E</div>
-            <div>
-              <div className="text-xl font-bold tracking-tight" style={{ color: "#0B3CC8" }}>ENTITLE</div>
-              <div className="text-[11px] text-[#64748B] mt-0.5 font-medium">Welfare Entitlement Assistance · Citizen Services</div>
-            </div>
-          </Link>
-          <div className="flex items-center gap-8">
-            <div className="text-right hidden md:block">
-              <div className="text-[11px] text-[#64748B] font-medium">Citizen reference</div>
-              <div className="font-bold text-[#0F172A] text-sm tracking-wide mt-0.5">{displayRef}</div>
-            </div>
-            <div className="w-px h-10 bg-[#E2E8F0] hidden md:block" />
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "#EEF3FF" }}>
-                <User className="w-5 h-5" style={{ color: "#0B3CC8" }} />
-              </div>
-              <div>
-                <div className="font-semibold text-[#0F172A] text-sm">Anonymous Citizen</div>
-                <div className="text-[11px] text-[#64748B]">Verified session</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <CitizenHeader />
 
       {/* Navigation */}
       <div className="bg-white border-b border-[#E2E8F0]">
@@ -261,15 +236,21 @@ function CertificateInner() {
                 {cert.tx_hash && (
                   <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-sm p-6">
                     <p className="text-[11px] font-semibold text-[#64748B] uppercase tracking-widest mb-3">Transaction Hash</p>
-                    <a
-                      href={cert.explorer_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono text-[12px] break-all hover:underline"
-                      style={{ color: "#0B3CC8" }}
-                    >
-                      {cert.tx_hash}
-                    </a>
+                    {cert.explorer_url ? (
+                      <a
+                        href={cert.explorer_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-[12px] break-all hover:underline"
+                        style={{ color: "#0B3CC8" }}
+                      >
+                        {cert.tx_hash}
+                      </a>
+                    ) : (
+                      <span className="font-mono text-[12px] break-all text-[#475569]">
+                        {cert.tx_hash}
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -285,11 +266,21 @@ function CertificateInner() {
               <p className="text-[13px] text-[#64748B] leading-relaxed mb-8">
                 Anyone can scan this QR code to independently verify authenticity on the Polygon blockchain — no login required.
               </p>
-              <a href={cert?.explorer_url || "#"} target="_blank" rel="noopener noreferrer" className="w-full">
-                <button className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3 rounded-sm text-sm hover:opacity-90 transition-opacity mb-4 shadow-sm" style={{ background: "#0B3CC8" }}>
-                  <ExternalLink className="w-4 h-4" /> Verify On Explorer
+              {cert?.explorer_url ? (
+                <a href={cert.explorer_url} target="_blank" rel="noopener noreferrer" className="w-full">
+                  <button className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3 rounded-sm text-sm hover:opacity-90 transition-opacity mb-4 shadow-sm" style={{ background: "#0B3CC8" }}>
+                    <ExternalLink className="w-4 h-4" /> Verify On Explorer
+                  </button>
+                </a>
+              ) : (
+                <button 
+                  disabled
+                  className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3 rounded-sm text-sm mb-4 shadow-sm opacity-60 cursor-not-allowed" 
+                  style={{ background: "#64748B" }}
+                >
+                  <ExternalLink className="w-4 h-4" /> Simulated (Not on Explorer)
                 </button>
-              </a>
+              )}
               <button
                 onClick={() => navigator.share?.({ title: "ENTITLE Certificate", url: window.location.href })}
                 className="w-full border border-[#E2E8F0] text-[#475569] font-semibold py-3 rounded-sm text-sm hover:bg-[#F8FAFC] transition-colors"

@@ -44,6 +44,8 @@ export const metadata: Metadata = {
 
 import Script from "next/script";
 
+import ScrollProgress from "@/app/components/ScrollProgress";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full scroll-smooth">
@@ -52,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={`${openSans.variable} ${oswald.variable} min-h-full flex flex-col bg-white antialiased`}>
+        <ScrollProgress />
         <Script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" strategy="lazyOnload" />
         <Script id="google-translate-init" strategy="lazyOnload">
           {`

@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import CitizenHeader from "@/app/components/CitizenHeader";
 import Link from "next/link";
 import {
   User, RefreshCw, FileDown, CheckCircle2,
   AlertTriangle, XCircle, ChevronRight, Loader2, X,
 } from "lucide-react";
 import { useCitizen } from "@/context/CitizenProfileContext";
+import ScrollStack, { ScrollStackItem } from "@/app/components/ScrollStack";
 import {
   explainEligibility, issueCertificate, listSchemes,
   EligibilityResult, SchemeListItem, ApiError,
@@ -131,33 +133,7 @@ export default function Dashboard() {
       </div>
 
       {/* Header */}
-      <header className="bg-white border-b border-[#E2E8F0]">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4">
-            <div className="w-11 h-11 border-2 flex items-center justify-center font-bold text-xl" style={{ borderColor: "#0B3CC8", color: "#0B3CC8" }}>E</div>
-            <div>
-              <div className="text-xl font-bold tracking-tight" style={{ color: "#0B3CC8" }}>ENTITLE</div>
-              <div className="text-[11px] text-[#64748B] mt-0.5 font-medium">Welfare Entitlement Assistance · Citizen Services</div>
-            </div>
-          </Link>
-          <div className="flex items-center gap-8">
-            <div className="text-right hidden md:block">
-              <div className="text-[11px] text-[#64748B] font-medium">Citizen reference</div>
-              <div className="font-bold text-[#0F172A] text-sm tracking-wide mt-0.5">{displayRef}</div>
-            </div>
-            <div className="w-px h-10 bg-[#E2E8F0] hidden md:block" />
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "#EEF3FF" }}>
-                <User className="w-5 h-5" style={{ color: "#0B3CC8" }} />
-              </div>
-              <div>
-                <div className="font-semibold text-[#0F172A] text-sm">Anonymous Citizen</div>
-                <div className="text-[11px] text-[#64748B]">{displayName}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <CitizenHeader />
 
       {/* Navigation */}
       <div className="bg-white border-b border-[#E2E8F0]">
@@ -201,6 +177,17 @@ export default function Dashboard() {
             <p className="text-[#64748B] text-sm max-w-md">Complete the eligibility questionnaire to see your determination.</p>
             <Link href="/assistant">
               <button className="mt-4 px-6 py-3 text-white font-semibold rounded text-sm" style={{ background: "#0B3CC8" }}>Start Assessment</button>
+            </Link>
+          </div>
+        )}
+
+        {/* Empty state (No Results Yet) */}
+        {citizenId && !isLoading && eligibilityResults.length === 0 && (
+          <div className="bg-white border border-[#E2E8F0] rounded-sm p-16 flex flex-col items-center gap-4 text-center">
+            <p className="text-[#64748B] font-medium text-lg">No schemes assessed yet.</p>
+            <p className="text-[#64748B] text-sm max-w-md">Your profile is empty or hasn't been evaluated against any schemes yet.</p>
+            <Link href="/assistant">
+              <button className="mt-4 px-6 py-3 text-white font-semibold rounded text-sm" style={{ background: "#0B3CC8" }}>Update Profile &amp; Assess</button>
             </Link>
           </div>
         )}
@@ -259,6 +246,70 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Eligible Schemes Stack */}
+            {eligible.length > 0 && (
+              <div className="mt-8 mb-8 relative pb-24">
+                <div className="mb-6">
+                  <h2 className="text-xl font-bold text-[#0F172A]">Eligible Schemes</h2>
+                  <p className="text-sm text-[#64748B] mt-1">Scroll down to explore the schemes you qualify for.</p>
+                </div>
+                <ScrollStack>
+                  {eligible.map((r, i) => {
+                    const meta = schemeMap[r.scheme_code];
+                    const total = r.matched_rules.length + r.missing_rules.length;
+                    return (
+                      <ScrollStackItem key={r.id} index={i}>
+                        <div className="flex flex-col gap-4">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="text-lg font-bold text-[#0F172A]">{meta?.name ?? r.scheme_code}</h3>
+                              {meta?.description && <p className="text-sm text-[#64748B] mt-1">{meta.description}</p>}
+                            </div>
+                            <StatusBadge status={r.status} />
+                          </div>
+                          
+                          <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-md">
+                            <p className="text-[12px] font-semibold tracking-widest uppercase text-[#64748B] mb-2">Conditions Met: {r.matched_rules.length}/{total}</p>
+                            {explanations[r.id] ? (
+                              <p className="text-sm text-[#475569] leading-relaxed">{explanations[r.id]}</p>
+                            ) : (
+                              <button
+                                onClick={() => handleExplain(r)}
+                                disabled={loadingExplain === r.id}
+                                className="flex items-center gap-1.5 text-sm font-semibold hover:underline disabled:opacity-60 text-[#0B3CC8]"
+                              >
+                                {loadingExplain === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                                {loadingExplain === r.id ? "Explaining…" : "Explain AI Determination"}
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-4 border-t border-[#E2E8F0] pt-4 mt-1">
+                            {certLinks[r.id] ? (
+                              <Link href={certLinks[r.id]}>
+                                <button className="text-sm font-semibold px-5 py-2.5 rounded-sm text-white hover:opacity-90 transition-opacity" style={{ background: "#16A34A" }}>
+                                  View Certificate
+                                </button>
+                              </Link>
+                            ) : (
+                              <button
+                                onClick={() => handleIssueCert(r)}
+                                disabled={issuingCert === r.id}
+                                className="text-sm font-semibold px-5 py-2.5 rounded-sm text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                                style={{ background: "#0B3CC8" }}
+                              >
+                                {issuingCert === r.id ? "Issuing…" : "Get Entitlement Certificate"}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </ScrollStackItem>
+                    );
+                  })}
+                </ScrollStack>
+              </div>
+            )}
 
             {/* Schemes Table */}
             <div className="bg-white border border-[#E2E8F0] rounded-sm overflow-hidden">

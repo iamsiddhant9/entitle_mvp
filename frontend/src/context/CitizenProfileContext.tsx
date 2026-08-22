@@ -39,6 +39,8 @@ interface CitizenContextValue {
   refreshProfile: () => Promise<void>;
   /** Clear error message. */
   clearError: () => void;
+  /** Delete session to start fresh. */
+  deleteSession: () => void;
 }
 
 /* ─── Context ─── */
@@ -144,6 +146,13 @@ export function CitizenProfileProvider({ children }: { children: ReactNode }) {
 
   const clearError = useCallback(() => setError(null), []);
 
+  const deleteSession = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    setCitizenId(null);
+    setProfile(null);
+    setEligibilityResults([]);
+  }, []);
+
   return (
     <CitizenContext.Provider
       value={{
@@ -157,6 +166,7 @@ export function CitizenProfileProvider({ children }: { children: ReactNode }) {
         refreshEligibility,
         refreshProfile,
         clearError,
+        deleteSession,
       }}
     >
       {children}

@@ -50,6 +50,7 @@ function AssistantFlowInner() {
   const [digiLockerNotice, setDigiLockerNotice] = useState<string | null>(null);
 
   /* Form state per step */
+  const [fullName, setFullName] = useState("");
   const [age, setAge] = useState("");
   const [state, setState] = useState("");
   const [gender, setGender] = useState("");
@@ -65,6 +66,7 @@ function AssistantFlowInner() {
   /* Prefill from existing profile */
   useEffect(() => {
     if (profile) {
+      if (profile.full_name) setFullName(profile.full_name);
       if (profile.age) setAge(String(profile.age));
       if (profile.state) setState(profile.state);
       if (profile.gender) setGender(profile.gender);
@@ -98,6 +100,7 @@ function AssistantFlowInner() {
   async function handleSubmit() {
     setSubmitting(true);
     const patch: CitizenProfilePatch = {
+      full_name: fullName || null,
       age: age ? Number(age) : null,
       state: state || null,
       gender: gender || null,
@@ -217,23 +220,27 @@ function AssistantFlowInner() {
             <div className="h-[3px] w-full" style={{ background: "#0B3CC8" }} />
 
             <div className="p-8 md:p-10">
-              {/* ── STEP 1: Personal Details ── */}
+              {/* ── STEP 1: Basic Identity ── */}
               {step === 1 && (
                 <>
                   <div className="mb-8">
                     <div className="text-[11px] font-semibold tracking-widest uppercase mb-3" style={{ color: "#0B3CC8" }}>Section 1 of 5</div>
-                    <h2 className="text-2xl font-bold text-[#0F172A] mb-2">Personal Details</h2>
-                    <p className="text-[#64748B] text-[14px]">Basic information needed to begin your eligibility assessment.</p>
+                    <h2 className="text-2xl font-bold text-[#0F172A] mb-2">Basic Identity</h2>
+                    <p className="text-[#64748B] text-[14px]">Let's start with your basic demographic details.</p>
                   </div>
-                  <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-6">
                     <div>
-                      <label className={labelCls}>Age</label>
-                      <input id="age-input" type="number" min="0" max="120" value={age} onChange={e => setAge(e.target.value)} placeholder="e.g. 35" className={inputCls} />
+                      <label className={labelCls}>Full Name (Optional)</label>
+                      <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="e.g. Rahul Sharma" className={inputCls} />
                     </div>
                     <div>
-                      <label className={labelCls}>State / UT</label>
-                      <select id="state-select" value={state} onChange={e => setState(e.target.value)} className={inputCls}>
-                        <option value="">Select your state</option>
+                      <label className={labelCls}>Age (Years)</label>
+                      <input type="number" min="0" max="120" value={age} onChange={e => setAge(e.target.value)} placeholder="e.g. 35" className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>State of Residence</label>
+                      <select value={state} onChange={e => setState(e.target.value)} className={inputCls}>
+                        <option value="" disabled>Select State</option>
                         {STATES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
@@ -366,6 +373,7 @@ function AssistantFlowInner() {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4 text-sm">
                     {[
+                      ["Full Name", fullName || "—"],
                       ["Age", age || "—"],
                       ["State", state || "—"],
                       ["Gender", gender || "—"],

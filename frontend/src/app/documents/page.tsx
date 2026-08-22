@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, Suspense } from "react";
+import CitizenHeader from "@/app/components/CitizenHeader";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -463,25 +464,7 @@ function DocumentStatusInner() {
       </div>
 
       {/* Header */}
-      <header className="bg-white border-b border-[#E2E8F0]">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4">
-            <div className="w-11 h-11 border-2 flex items-center justify-center font-bold text-xl" style={{ borderColor: "#0B3CC8", color: "#0B3CC8" }}>E</div>
-            <div>
-              <div className="text-xl font-bold tracking-tight" style={{ color: "#0B3CC8" }}>ENTITLE</div>
-              <div className="text-[11px] text-[#64748B] mt-0.5 font-medium">Welfare Entitlement Assistance · Citizen Services</div>
-            </div>
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "#EEF3FF" }}>
-              <User className="w-5 h-5" style={{ color: "#0B3CC8" }} />
-            </div>
-            <div className="text-sm font-semibold text-[#0F172A]">
-              {citizenId ? `ENT-${citizenId.slice(0, 8).toUpperCase()}` : "No session"}
-            </div>
-          </div>
-        </div>
-      </header>
+      <CitizenHeader subtitle="Welfare Entitlement Assistance · Citizen Services" />
 
       {/* Navigation */}
       <div className="bg-white border-b border-[#E2E8F0]">

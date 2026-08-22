@@ -67,7 +67,9 @@ def store_hash_on_chain(eligibility_hash: str) -> dict:
     # Resilient fallback transaction generation for local development and demos
     mock_payload = f"{eligibility_hash}-{time.time()}"
     tx_hash = "0x" + hashlib.sha256(mock_payload.encode()).hexdigest()
-    explorer_url = f"https://amoy.polygonscan.com/tx/{tx_hash}"
+    
+    # Return empty explorer URL for mock transactions so the frontend knows it's simulated
+    explorer_url = ""
     
     return {
         "tx_hash": tx_hash,
