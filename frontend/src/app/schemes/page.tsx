@@ -4,6 +4,7 @@ import Link from "next/link";
 import CitizenHeader from "@/app/components/CitizenHeader";
 import { useMemo, useState } from "react";
 import { useCitizen } from "@/context/CitizenProfileContext";
+import SpotlightCard from "../components/SpotlightCard";
 import {
   User,
   Search,
@@ -337,8 +338,9 @@ export default function SchemesDirectory() {
             const isOpen = openScheme === scheme.id;
 
             return (
-              <div
+              <SpotlightCard
                 key={scheme.id}
+                spotlightColor="rgba(0, 229, 255, 0.15)"
                 className="bg-white border border-[#E2E8F0] rounded-sm overflow-hidden hover:border-[#CBD5E1] transition-colors"
               >
                 <div className="p-6">
@@ -475,7 +477,7 @@ export default function SchemesDirectory() {
                     </div>
                   )}
                 </div>
-              </div>
+              </SpotlightCard>
             );
           })}
         </div>

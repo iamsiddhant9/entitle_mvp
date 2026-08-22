@@ -197,7 +197,7 @@ function CertificateInner() {
                       {eligibleSchemes.map(r => {
                         const meta = schemeMap[r.scheme_code];
                         return (
-                          <div key={r.id} className="flex items-center justify-between border border-[#E2E8F0] rounded-sm p-5 hover:bg-[#F8FAFC] transition-colors">
+                          <SpotlightCard key={r.id} spotlightColor="rgba(0, 229, 255, 0.15)" className="flex items-center justify-between border border-[#E2E8F0] rounded-sm p-5 hover:bg-[#F8FAFC] transition-colors">
                             <div className="flex items-center gap-4">
                               <div className="w-10 h-10 bg-[#ECFDF5] rounded flex items-center justify-center">
                                 <CheckCircle2 className="w-5 h-5 text-[#16A34A]" />
@@ -212,7 +212,7 @@ function CertificateInner() {
                                 Apply →
                               </a>
                             )}
-                          </div>
+                          </SpotlightCard>
                         );
                       })}
                     </div>

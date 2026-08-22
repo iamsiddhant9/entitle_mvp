@@ -6,21 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import IndiaImpactMap from "./components/IndiaImpactMap";
 import ChatbotWidget from "./components/ChatbotWidget";
-
-// Dynamic import — no SSR (three.js requires browser APIs)
-const ModelViewer = dynamic(
-  () => import("@/components/shared/ModelViewer"),
-  { ssr: false, loading: () => <ModelSkeleton /> }
-);
-
-function ModelSkeleton() {
-  return (
-    <div
-      className="w-full h-full rounded-2xl animate-pulse"
-      style={{ background: "rgba(255,255,255,0.06)", minHeight: 380 }}
-    />
-  );
-}
+import CardSwap, { Card } from "./components/CardSwap";
+import SpotlightCard from "./components/SpotlightCard";
 import {
   ArrowRight,
   CheckCircle2,
@@ -229,14 +216,18 @@ function SiteHeader({ ctaLabel = "Check Eligibility", ctaHref = "/assistant" }) 
       <header className="bg-white border-b border-[#E2E8F0] relative z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-            <Image
-              src="/entitle-logo.jpg"
-              alt="ENTITLE"
-              width={160}
-              height={52}
-              className="h-11 w-auto object-contain"
-              priority
-            />
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 relative overflow-hidden rounded-[4px]">
+                <Image
+                  src="/entitle-logo.jpg"
+                  alt="ENTITLE Logo Mark"
+                  fill
+                  className="object-cover object-left"
+                  priority
+                />
+              </div>
+              <span className="font-black text-[22px] tracking-[-0.04em] text-[#0B3CC8]">ENTITLE</span>
+            </div>
             <div className="text-[11px] text-[#64748B] font-medium hidden lg:block border-l border-[#E2E8F0] pl-3">
               Welfare Entitlement Assistance · Citizen Services
             </div>
@@ -433,53 +424,71 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* ── RIGHT: 3D Model ── */}
+          {/* ── RIGHT: CardSwap Animation ── */}
           {/* Hidden on small mobile to prevent layout breaking */}
-          <div className="hidden sm:flex flex-shrink-0 items-center justify-center w-full md:w-[420px]">
-            <div
-              className="relative rounded-2xl overflow-hidden"
-              style={{
-                width: 380,
-                height: 400,
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                backdropFilter: "blur(4px)",
-              }}
-            >
-              {/* Subtle glow ring behind the model */}
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background:
-                    "radial-gradient(ellipse at 50% 60%, rgba(11,60,200,0.35) 0%, transparent 70%)",
-                }}
-              />
-              <Suspense fallback={<ModelSkeleton />}>
-                <ModelViewer
-                  url="/models/entitle-icon.glb"
-                  width={380}
-                  height={400}
-                  defaultZoom={0.55}
-                  defaultRotationX={-30}
-                  defaultRotationY={15}
-                  autoRotate={true}
-                  autoRotateSpeed={0.4}
-                  /* ── Disable ALL user interaction for clean demo recording ── */
-                  enableManualRotation={false}
-                  enableHoverRotation={false}
-                  enableMouseParallax={false}
-                  enableManualZoom={false}
-                  showScreenshotButton={false}
-                  /* ── Lighting tuned for dark hero background ── */
-                  environmentPreset="city"
-                  ambientIntensity={0.5}
-                  keyLightIntensity={1.2}
-                  fillLightIntensity={0.6}
-                  rimLightIntensity={1.0}
-                  fadeIn={true}
-                  autoFrame={true}
-                />
-              </Suspense>
+          <div className="hidden sm:flex flex-shrink-0 items-center justify-center w-full md:w-[420px] lg:w-[480px]">
+            <div className="relative w-full" style={{ height: '400px' }}>
+              <CardSwap
+                cardDistance={60}
+                verticalDistance={25}
+                delay={4000}
+                pauseOnHover={false}
+              >
+                <Card className="bg-[#0F203C] !border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">
+                      <ShieldCheck className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-lg">Blockchain Secured</h3>
+                      <p className="text-blue-200 text-sm">Verified on Polygon Amoy</p>
+                    </div>
+                  </div>
+                  <p className="text-blue-100/70 text-sm leading-relaxed mb-4">
+                    Your eligibility profile is cryptographically secured, ensuring that your data remains private and untampered while applying for schemes.
+                  </p>
+                  <div className="w-full bg-blue-950/50 rounded p-3 font-mono text-xs text-blue-300 break-all">
+                    0x8a9C...3b1F
+                  </div>
+                </Card>
+
+                <Card className="bg-[#0F203C] !border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
+                      <CheckCircle2 className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-lg">Instant Matching</h3>
+                      <p className="text-indigo-200 text-sm">106+ Schemes Evaluated</p>
+                    </div>
+                  </div>
+                  <p className="text-indigo-100/70 text-sm leading-relaxed mb-4">
+                    Our Assessment Engine matches your profile against state and central schemes in milliseconds, finding benefits you didn't know you qualified for.
+                  </p>
+                  <div className="flex justify-between items-center text-sm font-semibold text-white">
+                    <span>PM-KISAN Samman Nidhi</span>
+                    <span className="text-emerald-400">98% Match</span>
+                  </div>
+                </Card>
+
+                <Card className="bg-[#0F203C] !border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 rounded-lg bg-yellow-500/20 text-yellow-400">
+                      <FileText className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-lg">Smart AI Chatbot</h3>
+                      <p className="text-emerald-200 text-sm">Multilingual Assistance</p>
+                    </div>
+                  </div>
+                  <p className="text-emerald-100/70 text-sm leading-relaxed mb-4">
+                    Talk to our AI in your native language. It helps you navigate complex government portals and explains application steps in plain language.
+                  </p>
+                  <div className="w-full bg-emerald-950/50 rounded p-3 text-sm text-emerald-200">
+                    "कैसे करें आवेदन?" -> "Here are the steps..."
+                  </div>
+                </Card>
+              </CardSwap>
             </div>
           </div>
 
@@ -508,7 +517,7 @@ export default function LandingPage() {
 
           <div className="bg-white border border-[#E2E8F0] rounded-sm overflow-hidden">
             {schemes.map((s, i) => (
-              <div key={s.name} className={`flex items-center gap-4 px-7 py-5 hover:bg-[#F8FAFC] transition-colors ${i > 0 ? "border-t border-[#E2E8F0]" : ""}`}>
+              <SpotlightCard key={s.name} spotlightColor="rgba(0, 229, 255, 0.15)" className={`flex items-center gap-4 px-7 py-5 hover:bg-[#F8FAFC] transition-colors ${i > 0 ? "border-t border-[#E2E8F0]" : ""}`}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-0.5">
                     <span className="font-bold text-[#0F172A] text-[15px]">{s.name}</span>
@@ -532,7 +541,7 @@ export default function LandingPage() {
                     </button>
                   )}
                 </div>
-              </div>
+              </SpotlightCard>
             ))}
 
             <div className="px-7 py-4 border-t border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-between">
