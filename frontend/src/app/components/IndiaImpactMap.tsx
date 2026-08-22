@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
+import { motion } from "framer-motion";
 
 const GEO_URL = "/india-states.json";
 
@@ -112,7 +113,13 @@ export default function IndiaImpactMap() {
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="text-center mb-14">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-14"
+        >
           <p className="text-[11px] font-semibold tracking-widest uppercase mb-3" style={{ color: "#FF9933" }}>
             Live Platform Impact
           </p>
@@ -123,12 +130,18 @@ export default function IndiaImpactMap() {
             Citizens across 28 states actively discovering and claiming their entitlements.
             Hover any state to explore local impact.
           </p>
-        </div>
+        </motion.div>
 
         <div className="flex flex-col lg:flex-row gap-10 items-start">
 
           {/* ── Left panel ── */}
-          <div className="flex flex-col gap-8 w-full lg:w-[260px] shrink-0">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-col gap-8 w-full lg:w-[260px] shrink-0"
+          >
 
             {/* Stacked stats — no cards, just large numbers with thin separators */}
             <div>
@@ -221,10 +234,16 @@ export default function IndiaImpactMap() {
                 <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.25)" }}>Active hotspot · hover state for data</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* ── Map ── */}
-          <div className="flex-1 min-h-[400px]">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="flex-1 min-h-[400px]"
+          >
             {mounted && (
               <ComposableMap
                 projection="geoMercator"
@@ -308,7 +327,7 @@ export default function IndiaImpactMap() {
                 })}
               </ComposableMap>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

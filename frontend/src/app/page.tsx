@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import dynamic from "next/dynamic";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import IndiaImpactMap from "./components/IndiaImpactMap";
@@ -362,32 +363,50 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10 md:gap-6">
 
           {/* ── LEFT: Text + CTA ── */}
-          <div className="flex-1 text-white text-center md:text-left">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, staggerChildren: 0.2 }}
+            className="flex-1 text-white text-center md:text-left"
+          >
             {/* Badge */}
-            <div className="inline-flex items-center gap-3 mb-8" style={{ borderLeft: "3px solid #FF9933", paddingLeft: "12px" }}>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="inline-flex items-center gap-3 mb-8" style={{ borderLeft: "3px solid #FF9933", paddingLeft: "12px" }}
+            >
               <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: "#FF9933" }} />
               <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.14em] uppercase" style={{ color: "rgba(255,255,255,0.6)" }}>
                 <span>Independent Welfare Platform</span>
                 <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
                 <span style={{ color: "rgba(255,255,255,0.35)" }}>106 Schemes Tracked</span>
               </div>
-            </div>
+            </motion.div>
 
-            <h1
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
               translate="no"
               className="notranslate text-[2.6rem] md:text-[3.5rem] font-bold leading-[1.08] mb-5 text-white h-[180px] sm:h-[150px] md:h-[145px] flex flex-col justify-end md:block"
               style={{ letterSpacing: "-0.035em", fontFamily: "var(--font-open-sans), sans-serif" }}
             >
               <HeroTypewriter />
-            </h1>
+            </motion.h1>
 
-            <p className="text-[1.05rem] text-white/65 mb-10 max-w-xl mx-auto md:mx-0 leading-relaxed font-normal">
+            <motion.p 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 1 }}
+              className="text-[1.05rem] text-white/65 mb-10 max-w-xl mx-auto md:mx-0 leading-relaxed font-normal"
+            >
               An independent, blockchain-secured citizen platform designed to accurately map your profile to valid central and state welfare schemes in plain language.
-            </p>
+            </motion.p>
 
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-10">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+              className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-10"
+            >
               <Link href="/assistant">
-                <button className="flex items-center gap-2.5 font-semibold px-7 py-3.5 rounded text-sm transition-all hover:opacity-90 shadow-lg" style={{ background: "#0B3CC8", color: "#fff" }}>
+                <button className="flex items-center gap-2.5 font-semibold px-7 py-3.5 rounded text-sm transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(11,60,200,0.5)] shadow-lg" style={{ background: "#0B3CC8", color: "#fff" }}>
                   Check Your Eligibility <ArrowRight className="w-4 h-4" />
                 </button>
               </Link>
@@ -396,10 +415,13 @@ export default function LandingPage() {
                   Browse Directory <ExternalLink className="w-4 h-4" />
                 </button>
               </a>
-            </div>
+            </motion.div>
 
             {/* Ministry logo circles */}
-            <div className="flex items-center justify-center md:justify-start gap-3 text-white/50 text-[13px]">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
+              className="flex items-center justify-center md:justify-start gap-3 text-white/50 text-[13px]"
+            >
               <div className="flex -space-x-2">
                 {[
                   { abbr: "MoA", bg: "rgba(255,153,51,0.12)",  border: "rgba(255,153,51,0.35)",  text: "#FFBD6B", title: "Ministry of Agriculture & Farmers Welfare" },
@@ -408,15 +430,20 @@ export default function LandingPage() {
                   { abbr: "MRD", bg: "rgba(74,222,128,0.10)",  border: "rgba(74,222,128,0.30)",  text: "#86EFAC", title: "Ministry of Rural Development" },
                   { abbr: "MoL", bg: "rgba(34,211,238,0.10)",  border: "rgba(34,211,238,0.30)",  text: "#67E8F9", title: "Ministry of Labour & Employment" },
                 ].map(({ abbr, bg, border, text, title }, i) => (
-                  <div key={i} title={title} className="w-9 h-9 rounded-full flex items-center justify-center font-bold"
-                    style={{ background: bg, border: `1.5px solid ${border}`, color: text, zIndex: 5 - i, fontSize: "8px", letterSpacing: "0.03em", marginLeft: i === 0 ? 0 : "-8px" }}>
+                  <motion.div 
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.8 + i * 0.1, type: "spring", stiffness: 200 }}
+                    key={i} title={title} className="w-9 h-9 rounded-full flex items-center justify-center font-bold"
+                    style={{ background: bg, border: `1.5px solid ${border}`, color: text, zIndex: 5 - i, fontSize: "8px", letterSpacing: "0.03em", marginLeft: i === 0 ? 0 : "-8px" }}
+                  >
                     {abbr}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-              <span><strong className="text-white">106 central schemes</strong> across <strong className="text-white">18 ministries</strong> — mapped and searchable.</span>
-            </div>
-          </div>
+              <span><strong className="text-white">106 central and state schemes</strong> across <strong className="text-white">18+ ministries and departments</strong> — mapped and searchable.</span>
+            </motion.div>
+          </motion.div>
 
           {/* ── RIGHT: CardSwap Animation ── */}
           {/* Hidden on small mobile to prevent layout breaking */}
@@ -496,7 +523,13 @@ export default function LandingPage() {
       <MinistryWheel />
       <section id="schemes" className="py-20 px-6" style={{ background: "#F3F4F6" }}>
         <div className="max-w-5xl mx-auto">
-          <div className="flex items-end justify-between mb-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="flex items-end justify-between mb-8"
+          >
             <div>
               <p className="text-[11px] font-semibold tracking-widest uppercase mb-2" style={{ color: "#E8620A" }}>
                 Entitle Welfare Directory
@@ -508,35 +541,43 @@ export default function LandingPage() {
             <a href="/schemes" className="text-sm font-semibold hover:underline hidden md:block" style={{ color: "#0B3CC8" }}>
               View all 106 schemes →
             </a>
-          </div>
+          </motion.div>
 
           <div className="bg-white border border-[#E2E8F0] rounded-sm overflow-hidden">
             {schemes.map((s, i) => (
-              <SpotlightCard key={s.name} spotlightColor="rgba(0, 229, 255, 0.15)" className={`flex items-center gap-4 px-7 py-5 hover:bg-[#F8FAFC] transition-colors ${i > 0 ? "border-t border-[#E2E8F0]" : ""}`}>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-0.5">
-                    <span className="font-bold text-[#0F172A] text-[15px]">{s.name}</span>
-                    <span className="text-[11px] text-[#64748B] hidden md:block">— {s.full}</span>
+              <motion.div 
+                key={s.name}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <SpotlightCard spotlightColor="rgba(0, 229, 255, 0.15)" className={`flex items-center gap-4 px-7 py-5 hover:bg-[#F8FAFC] transition-colors ${i > 0 ? "border-t border-[#E2E8F0]" : ""}`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-0.5">
+                      <span className="font-bold text-[#0F172A] text-[15px]">{s.name}</span>
+                      <span className="text-[11px] text-[#64748B] hidden md:block">— {s.full}</span>
+                    </div>
+                    <p className="text-[12.5px] text-[#64748B] truncate">{s.note}</p>
                   </div>
-                  <p className="text-[12.5px] text-[#64748B] truncate">{s.note}</p>
-                </div>
-                <div className="shrink-0 font-bold text-[#0F172A] text-[15px] w-32 text-right hidden md:block">
-                  {s.amount}
-                </div>
-                <div className="shrink-0">
-                  {s.status === "eligible" ? (
-                    <Link href="/assistant">
-                      <button className="text-xs font-semibold px-4 py-2 rounded-sm text-white transition-opacity hover:opacity-90" style={{ background: "#16A34A" }}>
-                        Register
+                  <div className="shrink-0 font-bold text-[#0F172A] text-[15px] w-32 text-right hidden md:block">
+                    {s.amount}
+                  </div>
+                  <div className="shrink-0">
+                    {s.status === "eligible" ? (
+                      <Link href="/assistant">
+                        <button className="text-xs font-semibold px-4 py-2 rounded-sm text-white transition-opacity hover:opacity-90" style={{ background: "#16A34A" }}>
+                          Register
+                        </button>
+                      </Link>
+                    ) : (
+                      <button className="text-xs font-semibold px-4 py-2 rounded-sm border transition-colors" style={{ borderColor: "#D97706", color: "#92400E", background: "#FFFBEB" }}>
+                        Near Miss
                       </button>
-                    </Link>
-                  ) : (
-                    <button className="text-xs font-semibold px-4 py-2 rounded-sm border transition-colors" style={{ borderColor: "#D97706", color: "#92400E", background: "#FFFBEB" }}>
-                      Near Miss
-                    </button>
-                  )}
-                </div>
-              </SpotlightCard>
+                    )}
+                  </div>
+                </SpotlightCard>
+              </motion.div>
             ))}
 
             <div className="px-7 py-4 border-t border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-between">
@@ -552,7 +593,12 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
 
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-16">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-16"
+          >
             <div>
               <p className="text-[11px] font-semibold tracking-widest uppercase mb-3" style={{ color: "#FF9933" }}>
                 Platform Commitments
@@ -564,7 +610,7 @@ export default function LandingPage() {
             <p className="text-[13px] max-w-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
               Every principle is enforced in code,<br className="hidden md:block" /> not just promised in text.
             </p>
-          </div>
+          </motion.div>
 
           {/* Principle rows */}
           <div>
@@ -589,9 +635,13 @@ export default function LandingPage() {
                 body: "Your documents never leave your device. We process only cryptographic summaries using a zero-knowledge architecture.",
                 proof: "Zero server uploads · Zero data retention",
               },
-            ].map(({ n, title, body, proof }) => (
-              <div
+            ].map(({ n, title, body, proof }, i) => (
+              <motion.div
                 key={n}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: i * 0.15 }}
                 className="group grid grid-cols-[40px_1fr] md:grid-cols-[72px_1fr_auto] gap-4 md:gap-6 py-7 md:py-9 items-start cursor-default"
                 style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
               >
@@ -629,7 +679,7 @@ export default function LandingPage() {
                     {proof}
                   </span>
                 </div>
-              </div>
+              </motion.div>
             ))}
             <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }} />
           </div>
@@ -641,7 +691,13 @@ export default function LandingPage() {
       {/* ── VERIFY CERTIFICATE CTA ── */}
       <section className="py-24 px-6 relative overflow-hidden" style={{ background: "#0A1628" }}>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 50% 50%, #0B3CC8 0%, transparent 50%)" }} />
-        <div className="max-w-3xl mx-auto text-center relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="max-w-3xl mx-auto text-center relative z-10"
+        >
           <ShieldCheck className="w-12 h-12 mx-auto mb-6" style={{ color: "#FF9933" }} />
           <h2 className="text-[2rem] font-bold text-white mb-4" style={{ letterSpacing: "-0.025em" }}>Already have an Entitle certificate?</h2>
           <p className="text-white/60 mb-8 max-w-xl mx-auto">Verify any eligibility certificate instantly on the Polygon blockchain to ensure it is authentic and tamper-proof.</p>
@@ -654,7 +710,7 @@ export default function LandingPage() {
               Verify On-Chain
             </button>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* ── FAQ ── */}
@@ -669,7 +725,14 @@ export default function LandingPage() {
 
           <div className="border-t border-[#E2E8F0]">
             {faqs.map((f, i) => (
-              <div key={i} className="border-b border-[#E2E8F0]">
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="border-b border-[#E2E8F0]"
+              >
                 <button
                   className="w-full flex items-center justify-between py-5 text-left gap-6 group"
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -683,11 +746,15 @@ export default function LandingPage() {
                   }
                 </button>
                 {openFaq === i && (
-                  <div className="pb-5 text-[13px] text-[#64748B] leading-relaxed">
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="pb-5 text-[13px] text-[#64748B] leading-relaxed overflow-hidden"
+                  >
                     {f.a}
-                  </div>
+                  </motion.div>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

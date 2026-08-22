@@ -4,14 +4,14 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 
 const ministries = [
-  { name: "Ministry of Agriculture", short: "MoA", gradient: "from-emerald-400 to-green-600", shadow: "shadow-emerald-500/40" },
-  { name: "Ministry of Health", short: "MoHFW", gradient: "from-blue-400 to-indigo-600", shadow: "shadow-blue-500/40" },
-  { name: "Ministry of Education", short: "MoE", gradient: "from-amber-400 to-orange-500", shadow: "shadow-orange-500/40" },
-  { name: "Ministry of Rural Dev.", short: "MoRD", gradient: "from-rose-400 to-red-600", shadow: "shadow-red-500/40" },
-  { name: "Ministry of Labor", short: "MoLE", gradient: "from-slate-600 to-slate-800", shadow: "shadow-slate-500/40" },
-  { name: "Ministry of Finance", short: "MoF", gradient: "from-teal-400 to-emerald-600", shadow: "shadow-teal-500/40" },
-  { name: "Ministry of Women", short: "MWCD", gradient: "from-fuchsia-400 to-pink-600", shadow: "shadow-pink-500/40" },
-  { name: "Social Justice", short: "MoSJE", gradient: "from-indigo-400 to-purple-600", shadow: "shadow-indigo-500/40" },
+  { name: "Ministry of Agriculture", short: "MoA", gradient: "from-blue-950 to-[#0F203C]", shadow: "shadow-blue-900/50" },
+  { name: "Ministry of Health", short: "MoHFW", gradient: "from-blue-950 to-[#0F203C]", shadow: "shadow-blue-900/50" },
+  { name: "Ministry of Education", short: "MoE", gradient: "from-blue-950 to-[#0F203C]", shadow: "shadow-blue-900/50" },
+  { name: "Ministry of Rural Dev.", short: "MoRD", gradient: "from-blue-950 to-[#0F203C]", shadow: "shadow-blue-900/50" },
+  { name: "Ministry of Labor", short: "MoLE", gradient: "from-blue-950 to-[#0F203C]", shadow: "shadow-blue-900/50" },
+  { name: "Ministry of Finance", short: "MoF", gradient: "from-blue-950 to-[#0F203C]", shadow: "shadow-blue-900/50" },
+  { name: "Ministry of Women", short: "MWCD", gradient: "from-blue-950 to-[#0F203C]", shadow: "shadow-blue-900/50" },
+  { name: "Social Justice", short: "MoSJE", gradient: "from-blue-950 to-[#0F203C]", shadow: "shadow-blue-900/50" },
 ];
 
 export default function MinistryWheel() {
@@ -111,8 +111,8 @@ export default function MinistryWheel() {
         <h3 className="text-[11px] font-black text-[#0F172A] tracking-[0.2em] uppercase text-center bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500">
           Supported By
         </h3>
-        <h4 className="text-[13px] font-bold text-[#0F172A] mt-1 text-center">
-          Central Ministries
+        <h4 className="text-[12px] font-bold text-[#0F172A] mt-1 text-center leading-tight">
+          Central & State<br/>Ministries
         </h4>
       </div>
     </div>
